@@ -1,77 +1,84 @@
 using UnityEngine;
+using SpaceTUI;
 
 namespace GAL
 {
     /// <summary>
-    /// GAL 导演 - 协调各系统的入口
+    /// GAL 导演 - 通过 UIID 发送事件
     /// </summary>
     public class GALDirector : MonoBehaviour
     {
-        [SerializeField] private TransitionManager transition;
-        [SerializeField] private CharacterStage stage;
-        [SerializeField] private DialoguePanel dialoguePanel;
-        
         public static GALDirector Instance { get; private set; }
         
-        void Awake()
+        void Awake() => Instance = this;
+        
+        // ========== 转场 ==========
+        
+        public void FadeToBlack(float? duration = null)
         {
-            Instance = this;
+            PostSystem.Instance.Send("期望显示面板", "TransitionManager");
+        }
+            
+        public void FadeFromBlack(float? duration = null)
+        {
+            PostSystem.Instance.Send("期望隐藏面板", "TransitionManager");
         }
         
-        // ========== 转场快捷方法 ==========
+        // ========== 立绘 ==========
         
-        public void FadeToBlack(float? duration = null, System.Action onComplete = null)
-            => transition?.FadeToBlack(duration, onComplete);
+        public void ShowCharacter(int slot, string characterID, Sprite sprite, bool fromLeft = true)
+        {
+            // 1. 准备数据
+            var slotObj = GetSlot(slot);
+            slotObj?.PrepareShow(characterID, sprite, fromLeft);
             
-        public void FadeFromBlack(float? duration = null, System.Action onComplete = null)
-            => transition?.FadeFromBlack(duration, onComplete);
+            // 2. 发送事件，通过 UIID 匹配
+            string uiid = $"CharSlot{slot}";
+            PostSystem.Instance.Send("期望显示面板", uiid);
+        }
             
-        public void FadeThroughBlack(System.Action middleAction, float? duration = null, System.Action onComplete = null)
-            => transition?.FadeThroughBlack(middleAction, duration, onComplete);
-            
-        public void FlashWhite(float? duration = null, System.Action onComplete = null)
-            => transition?.FlashWhite(duration, onComplete);
+        public void HideCharacter(int slot)
+        {
+            string uiid = $"CharSlot{slot}";
+            PostSystem.Instance.Send("期望隐藏面板", uiid);
+        }
         
-        // ========== 立绘快捷方法 ==========
-        
-        public void ShowCharacter(int slot, string id, Sprite sprite, bool fromLeft = true)
-            => stage?.ShowCharacter(slot, id, sprite, fromLeft);
-            
-        public void HideCharacter(int slot, bool toRight = true)
-            => stage?.HideCharacter(slot, toRight);
-            
         public void ChangeExpression(int slot, Sprite sprite)
-            => stage?.ChangeExpression(slot, sprite);
-            
-        public void SetSpeaker(int? slot)
-            => stage?.SetSpeaker(slot);
-            
-        public void ClearStage()
-            => stage?.ClearStage();
+        {
+            GetSlot(slot)?.ChangeExpression(sprite);
+        }
         
-        // ========== 对话快捷方法 ==========
+        public void SetSpeaker(int? slot)
+        {
+            var stage = FindObjectOfType<CharacterStage>();
+            stage?.SetSpeaker(slot);
+        }
+        
+        CharacterAnimator GetSlot(int slot)
+        {
+            var stage = FindObjectOfType<CharacterStage>();
+            return stage?.GetSlot(slot);
+        }
+        
+        // ========== 对话 ==========
         
         public void ShowDialogue(DialogueData data, System.Action onComplete = null)
-            => dialoguePanel?.ShowDialogue(data, onComplete);
+        {
+            PostSystem.Instance.Send("期望显示面板", "DialoguePanel");
+            
+            var panel = FindObjectOfType<DialoguePanel>();
+            panel?.ShowDialogue(data, onComplete);
+        }
+            
+        public void HideDialogue()
+        {
+            PostSystem.Instance.Send("期望隐藏面板", "DialoguePanel");
+        }
             
         public void ShowChoices(string[] choices, System.Action<int> onSelect)
-            => dialoguePanel?.ShowChoices(choices, onSelect);
-            
-        public void ClearDialogue()
-            => dialoguePanel?.Clear();
-        
-        // ========== 组合操作 ==========
-        
-        /// <summary>
-        /// 场景切换：黑场 + 清理 + 新场景
-        /// </summary>
-        public void ChangeScene(System.Action setupAction, float? duration = null, System.Action onComplete = null)
         {
-            FadeThroughBlack(() => {
-                ClearStage();
-                ClearDialogue();
-                setupAction?.Invoke();
-            }, duration, onComplete);
+            var panel = FindObjectOfType<DialoguePanel>();
+            panel?.ShowChoices(choices, onSelect);
         }
     }
 }
