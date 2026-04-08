@@ -18,9 +18,12 @@ namespace GAL01.Dialog.Editor
         
         // 显示控制
         private int _displayCount = 20;
-        private int _scrollOffset = 0;
         private bool _mergeDialogEntries = false;
         private bool _compactEffectEntries = false;
+        
+        // 合并后的显示项缓存
+        private List<DisplayItem> _displayItems = new();
+        private bool _needsRebuildDisplay = true;
 
         private void OnEnable()
         {
@@ -40,10 +43,18 @@ namespace GAL01.Dialog.Editor
 
             _entryList.drawElementCallback = (rect, index, isActive, isFocused) =>
             {
-                DrawEntryElement(rect, index);
+                if (_mergeDialogEntries || _compactEffectEntries)
+                    DrawVirtualElement(rect, index);
+                else
+                    DrawEntryElement(rect, index);
             };
 
-            _entryList.elementHeightCallback = index => 30f;
+            _entryList.elementHeightCallback = index => 
+            {
+                if (!_needsRebuildDisplay)
+                    return GetElementHeight(index);
+                return 30f;
+            };
 
             _entryList.onAddDropdownCallback = (rect, list) =>
             {
@@ -56,11 +67,23 @@ namespace GAL01.Dialog.Editor
                 menu.AddItem(new GUIContent("⚡ 屏幕闪烁"), false, () => AddEntryAt<ScreenFlashEntry>(insertIndex));
                 menu.ShowAsContext();
             };
+            
+            _entryList.onChangedCallback = list =>
+            {
+                _needsRebuildDisplay = true;
+            };
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
+            
+            // 检查是否需要重建显示项
+            if (_needsRebuildDisplay)
+            {
+                RebuildDisplayItems();
+                _needsRebuildDisplay = false;
+            }
 
             EditorGUILayout.Space(10);
 
@@ -81,6 +104,7 @@ namespace GAL01.Dialog.Editor
             if (GUILayout.Button("🔃 从 CSV 构建序列", GUILayout.Height(30)))
             {
                 BuildFromCsv();
+                _needsRebuildDisplay = true;
             }
             GUI.enabled = true;
 
@@ -94,6 +118,7 @@ namespace GAL01.Dialog.Editor
             EditorGUILayout.Space(10);
 
             // 显示控制
+            EditorGUI.BeginChangeCheck();
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("显示:", GUILayout.Width(40));
             _displayCount = EditorGUILayout.IntSlider(_displayCount, 5, 100, GUILayout.Width(200));
@@ -102,11 +127,27 @@ namespace GAL01.Dialog.Editor
             _mergeDialogEntries = GUILayout.Toggle(_mergeDialogEntries, "合并对话", GUILayout.Width(70));
             _compactEffectEntries = GUILayout.Toggle(_compactEffectEntries, "紧凑特效", GUILayout.Width(70));
             EditorGUILayout.EndHorizontal();
+            
+            if (EditorGUI.EndChangeCheck())
+            {
+                _needsRebuildDisplay = true;
+            }
 
             EditorGUILayout.Space(5);
 
-            // 可拖拽排序列表
-            _entryList.DoLayoutList();
+            // 可拖拽排序列表（限制显示数量）
+            int originalCount = _entryList.count;
+            if ((_mergeDialogEntries || _compactEffectEntries) && _displayItems.Count > 0)
+            {
+                // 使用虚拟列表显示
+                DrawVirtualList();
+            }
+            else
+            {
+                // 限制显示数量
+                EditorGUILayout.LabelField($"显示前 {Mathf.Min(_displayCount, _target.Entries.Count)} 条 (共 {_target.Entries.Count} 条)", EditorStyles.miniLabel);
+                _entryList.DoLayoutList();
+            }
 
             EditorGUILayout.Space(10);
             
@@ -114,6 +155,198 @@ namespace GAL01.Dialog.Editor
             DrawSelectedEntryDetails();
 
             serializedObject.ApplyModifiedProperties();
+        }
+        
+        private void RebuildDisplayItems()
+        {
+            _displayItems.Clear();
+            int i = 0;
+            
+            while (i < _target.Entries.Count && _displayItems.Count < _displayCount)
+            {
+                var entry = _target.Entries[i];
+                
+                // 检查是否是连续对话的开始
+                if (_mergeDialogEntries && entry is DialogEntry)
+                {
+                    int groupStart = i;
+                    int groupEnd = i;
+                    
+                    // 找到连续对话的结尾
+                    while (groupEnd + 1 < _target.Entries.Count && _target.Entries[groupEnd + 1] is DialogEntry)
+                    {
+                        groupEnd++;
+                    }
+                    
+                    int groupSize = groupEnd - groupStart + 1;
+                    
+                    if (groupSize >= 3)
+                    {
+                        // 3条以上：显示头、省略、尾
+                        _displayItems.Add(new DisplayItem 
+                        { 
+                            Type = DisplayItemType.DialogHead,
+                            Entry = _target.Entries[groupStart],
+                            RealIndex = groupStart,
+                            Height = 28f
+                        });
+                        
+                        _displayItems.Add(new DisplayItem 
+                        { 
+                            Type = DisplayItemType.DialogCollapsed, 
+                            Entry = null,
+                            CollapsedCount = groupSize - 2,
+                            RealIndex = -1,
+                            Height = 20f
+                        });
+                        
+                        _displayItems.Add(new DisplayItem 
+                        { 
+                            Type = DisplayItemType.DialogTail,
+                            Entry = _target.Entries[groupEnd],
+                            RealIndex = groupEnd,
+                            Height = 28f
+                        });
+                    }
+                    else
+                    {
+                        // 2条或更少：正常显示
+                        for (int j = groupStart; j <= groupEnd && _displayItems.Count < _displayCount; j++)
+                        {
+                            _displayItems.Add(new DisplayItem 
+                            { 
+                                Type = DisplayItemType.Normal, 
+                                Entry = _target.Entries[j],
+                                RealIndex = j,
+                                Height = 28f
+                            });
+                        }
+                    }
+                    
+                    i = groupEnd + 1;
+                }
+                else if (_compactEffectEntries && entry is EffectEntry)
+                {
+                    _displayItems.Add(new DisplayItem 
+                    { 
+                        Type = DisplayItemType.CompactEffect, 
+                        Entry = entry,
+                        RealIndex = i,
+                        Height = 16f
+                    });
+                    i++;
+                }
+                else
+                {
+                    _displayItems.Add(new DisplayItem 
+                    { 
+                        Type = DisplayItemType.Normal, 
+                        Entry = entry,
+                        RealIndex = i,
+                        Height = 28f
+                    });
+                    i++;
+                }
+            }
+        }
+        
+        private void DrawVirtualList()
+        {
+            EditorGUILayout.LabelField($"显示 {_displayItems.Count} 条 (共 {_target.Entries.Count} 条) | 拖拽排序已启用", EditorStyles.miniLabel);
+            
+            Rect listRect = EditorGUILayout.GetControlRect(false, Mathf.Min(_displayItems.Count * 30f + 20f, 400f));
+            _entryList.DoList(listRect);
+        }
+        
+        private float GetElementHeight(int index)
+        {
+            if (index < 0 || index >= _displayItems.Count) return 30f;
+            return _displayItems[index].Height;
+        }
+        
+        private void DrawVirtualElement(Rect rect, int displayIndex)
+        {
+            if (displayIndex < 0 || displayIndex >= _displayItems.Count) return;
+            
+            var item = _displayItems[displayIndex];
+            
+            switch (item.Type)
+            {
+                case DisplayItemType.DialogHead:
+                    DrawDialogHead(rect, item.Entry as DialogEntry, item.RealIndex);
+                    break;
+                case DisplayItemType.DialogTail:
+                    DrawDialogTail(rect, item.Entry as DialogEntry, item.RealIndex);
+                    break;
+                case DisplayItemType.DialogCollapsed:
+                    DrawDialogCollapsed(rect, item.CollapsedCount);
+                    break;
+                case DisplayItemType.CompactEffect:
+                    DrawCompactEffect(rect, item.Entry);
+                    break;
+                default:
+                    DrawEntryElement(rect, item.RealIndex);
+                    break;
+            }
+        }
+        
+        private void DrawDialogHead(Rect rect, DialogEntry entry, int realIndex)
+        {
+            float iconWidth = 25f;
+            Rect iconRect = new Rect(rect.x + 5f, rect.y + 3f, iconWidth, 20f);
+            Rect textRect = new Rect(rect.x + iconWidth + 10f, rect.y + 3f, rect.width - iconWidth - 30f, 20f);
+            Rect expandRect = new Rect(rect.x + rect.width - 25f, rect.y + 3f, 20f, 20f);
+            
+            GUI.Label(iconRect, "💬", EditorStyles.largeLabel);
+            string preview = $"[{realIndex}] {entry.Speaker}: {(entry.Content?.Length > 20 ? entry.Content.Substring(0, 20) + "..." : entry.Content)}";
+            GUI.Label(textRect, preview, EditorStyles.boldLabel);
+            
+            // 展开提示
+            GUI.Label(expandRect, "▼", EditorStyles.miniLabel);
+        }
+        
+        private void DrawDialogTail(Rect rect, DialogEntry entry, int realIndex)
+        {
+            float iconWidth = 25f;
+            Rect iconRect = new Rect(rect.x + 5f, rect.y + 3f, iconWidth, 20f);
+            Rect textRect = new Rect(rect.x + iconWidth + 10f, rect.y + 3f, rect.width - iconWidth - 15f, 20f);
+            
+            GUI.Label(iconRect, "💬", EditorStyles.largeLabel);
+            string preview = $"[{realIndex}] {entry.Speaker}: {(entry.Content?.Length > 20 ? entry.Content.Substring(0, 20) + "..." : entry.Content)}";
+            GUI.Label(textRect, preview, EditorStyles.boldLabel);
+        }
+        
+        private void DrawDialogCollapsed(Rect rect, int count)
+        {
+            Rect textRect = new Rect(rect.x + 40f, rect.y + 2f, rect.width - 50f, 16f);
+            GUI.Label(textRect, $"    ... {count} 条对话已折叠 ...", EditorStyles.miniLabel);
+        }
+        
+        private void DrawCompactEffect(Rect rect, ISequenceEntry entry)
+        {
+            Color color = entry switch
+            {
+                CameraEffectEntry => new Color(0.8f, 0.4f, 0.4f),
+                AvatarEffectEntry => new Color(0.4f, 0.6f, 0.8f),
+                VoiceEffectEntry => new Color(0.4f, 0.8f, 0.4f),
+                ScreenFlashEntry => new Color(0.9f, 0.9f, 0.4f),
+                _ => Color.gray
+            };
+            
+            string icon = entry switch
+            {
+                CameraEffectEntry => "📷",
+                AvatarEffectEntry => "👤",
+                VoiceEffectEntry => "🔊",
+                ScreenFlashEntry => "⚡",
+                _ => "●"
+            };
+            
+            Rect iconRect = new Rect(rect.x + 5f, rect.y + 1f, 20f, 14f);
+            Rect barRect = new Rect(rect.x + 30f, rect.y + 5f, rect.width - 40f, 6f);
+            
+            GUI.Label(iconRect, icon, EditorStyles.miniLabel);
+            EditorGUI.DrawRect(barRect, color);
         }
 
         private void DrawEntryElement(Rect rect, int index)
@@ -125,7 +358,7 @@ namespace GAL01.Dialog.Editor
 
             float iconWidth = 25f;
             float typeWidth = 60f;
-            
+
             Rect iconRect = new Rect(rect.x, rect.y + 5, iconWidth, 20);
             Rect typeRect = new Rect(rect.x + iconWidth, rect.y + 5, typeWidth, 20);
 
@@ -346,6 +579,7 @@ namespace GAL01.Dialog.Editor
             EditorUtility.SetDirty(_target);
             
             _entryList.index = index;
+            _needsRebuildDisplay = true;
         }
 
         private void DrawSelectedEntryDetails()
@@ -426,6 +660,17 @@ namespace GAL01.Dialog.Editor
             {
                 EditorGUILayout.HelpBox("未引用 Profile，请在列表中拖拽指定", MessageType.Warning);
             }
+        }
+        
+        private enum DisplayItemType { Normal, DialogHead, DialogTail, DialogCollapsed, CompactEffect }
+        
+        private class DisplayItem
+        {
+            public DisplayItemType Type;
+            public ISequenceEntry Entry;
+            public int RealIndex;
+            public int CollapsedCount;
+            public float Height;
         }
     }
 }
