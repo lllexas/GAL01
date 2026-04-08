@@ -19,6 +19,14 @@ namespace GAL
     }
     
     /// <summary>
+    /// 说话者高亮数据 - 纯 MVVM 模式
+    /// </summary>
+    public class SpeakerData
+    {
+        public int? slotIndex;  // null = 无人说话
+    }
+    
+    /// <summary>
     /// 对话面板 - 独立响应事件
     /// </summary>
     public class DialoguePanel : SpaceUIAnimator
@@ -48,7 +56,33 @@ namespace GAL
             期望隐藏面板 += OnHidePanel;
             鼠标点击 += OnClickAdvance;
             
+            // 订阅纯事件驱动的数据包
+            PostSystem.Instance.Subscribe("对话数据", OnDialogueDataReceived);
+            PostSystem.Instance.Subscribe("期望显示选项", OnChoicesReceived);
+            
             Hide();
+        }
+        
+        void OnDestroy()
+        {
+            PostSystem.Instance.Unsubscribe("对话数据", OnDialogueDataReceived);
+            PostSystem.Instance.Unsubscribe("期望显示选项", OnChoicesReceived);
+        }
+        
+        void OnDialogueDataReceived(object data)
+        {
+            if (data is GALDirector.DialoguePackage package)
+            {
+                ShowDialogue(package.data, package.onComplete);
+            }
+        }
+        
+        void OnChoicesReceived(object data)
+        {
+            if (data is GALDirector.ChoicePackage package)
+            {
+                ShowChoices(package.choices, package.onSelect);
+            }
         }
         
         void OnShowPanel(object data)
@@ -103,17 +137,16 @@ namespace GAL
                 }
             }
             
-            // 高亮说话者
+            // 高亮说话者 - 纯事件驱动
             var stage = FindObjectOfType<CharacterStage>();
+            int? speakerSlot = null;
             if (stage != null && !string.IsNullOrEmpty(data.characterID))
             {
-                var slot = data.slotIndex ?? stage.FindCharacterSlot(data.characterID);
-                stage.SetSpeaker(slot);
+                speakerSlot = data.slotIndex ?? stage.FindCharacterSlot(data.characterID);
             }
-            else
-            {
-                stage?.SetSpeaker(null);
-            }
+            
+            // 发送事件而非直接调用 - MVVM 模式
+            PostSystem.Instance.Send("期望高亮角色", new SpeakerData { slotIndex = speakerSlot });
             
             // 打字机
             float speed = data.typingSpeed > 0 ? data.typingSpeed : defaultTypingSpeed;

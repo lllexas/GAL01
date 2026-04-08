@@ -38,6 +38,21 @@ namespace GAL
         {
             期望显示面板 += OnShowPanel;
             期望隐藏面板 += OnHidePanel;
+            PostSystem.Instance.Subscribe("期望高亮角色", OnHighlightSpeaker);
+        }
+        
+        void OnDestroy()
+        {
+            PostSystem.Instance.Unsubscribe("期望高亮角色", OnHighlightSpeaker);
+        }
+        
+        void OnHighlightSpeaker(object data)
+        {
+            if (data is SpeakerData speakerData)
+            {
+                bool isSpeaking = speakerData.slotIndex.HasValue && speakerData.slotIndex.Value == slotIndex;
+                Highlight(isSpeaking);
+            }
         }
         
         public void PrepareShow(string characterID, Sprite sprite, bool fromLeft)

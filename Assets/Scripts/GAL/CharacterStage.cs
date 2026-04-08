@@ -31,6 +31,10 @@ namespace GAL
             return null;
         }
         
+        // 注意：高亮逻辑已移至纯事件驱动
+        // CharacterAnimator 自己订阅 期望高亮角色 事件
+        // 此辅助方法仅供遗留代码调用，不建议使用
+        [System.Obsolete("使用 PostSystem.Send(\"期望高亮角色\", new SpeakerData { slotIndex = x }) 替代")]
         public void SetSpeaker(int? slotIndex)
         {
             for (int i = 0; i < slots.Length; i++)

@@ -50,8 +50,8 @@ namespace GAL
         
         public void SetSpeaker(int? slot)
         {
-            var stage = FindObjectOfType<CharacterStage>();
-            stage?.SetSpeaker(slot);
+            // 纯事件驱动 - 不再直接查找和调用
+            PostSystem.Instance.Send("期望高亮角色", new SpeakerData { slotIndex = slot });
         }
         
         CharacterAnimator GetSlot(int slot)
@@ -64,10 +64,18 @@ namespace GAL
         
         public void ShowDialogue(DialogueData data, System.Action onComplete = null)
         {
+            // 纯事件驱动 - 发送数据和回调
             PostSystem.Instance.Send("期望显示面板", "DialoguePanel");
-            
-            var panel = FindObjectOfType<DialoguePanel>();
-            panel?.ShowDialogue(data, onComplete);
+            PostSystem.Instance.Send("对话数据", new DialoguePackage { data = data, onComplete = onComplete });
+        }
+        
+        /// <summary>
+        /// 对话数据包 - 包含回调
+        /// </summary>
+        public class DialoguePackage
+        {
+            public DialogueData data;
+            public System.Action onComplete;
         }
             
         public void HideDialogue()
@@ -77,8 +85,17 @@ namespace GAL
             
         public void ShowChoices(string[] choices, System.Action<int> onSelect)
         {
-            var panel = FindObjectOfType<DialoguePanel>();
-            panel?.ShowChoices(choices, onSelect);
+            // 纯事件驱动
+            PostSystem.Instance.Send("期望显示选项", new ChoicePackage { choices = choices, onSelect = onSelect });
+        }
+        
+        /// <summary>
+        /// 选项数据包
+        /// </summary>
+        public class ChoicePackage
+        {
+            public string[] choices;
+            public System.Action<int> onSelect;
         }
     }
 }
