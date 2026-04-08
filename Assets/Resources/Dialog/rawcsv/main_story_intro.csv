@@ -1,0 +1,6 @@
+id,speaker,text,portrait,voice,next
+intro_001,旁白,"雨停了，走廊里只剩灯管的嗡鸣。",narrator,,intro_002
+intro_002,主角,"这里就是记录里提到的旧活动室？",hero,voice/hero_001,intro_003
+intro_003,少女,"你终于来了。我还以为你会在门口犹豫更久。",girl_mysterious,voice/girl_001,intro_004
+intro_004,主角,"你是谁？为什么知道我会来？",hero,voice/hero_002,intro_005
+intro_005,少女,"名字不重要。重要的是，你得先学会把故事读完。",girl_mysterious,voice/girl_002,
