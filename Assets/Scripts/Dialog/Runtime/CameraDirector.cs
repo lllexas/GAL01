@@ -1,10 +1,7 @@
 using System.Collections.Generic;
 using DG.Tweening;
-using GAL01.Dialog.Data;
 using UnityEngine;
 
-namespace GAL01.Dialog.Runtime
-{
     /// <summary>
     /// 相机导演 - 2D游戏镜头效果执行器
     /// 
@@ -237,4 +234,4 @@ namespace GAL01.Dialog.Runtime
             _activeTweens.Clear();
         }
     }
-}
+

@@ -13,5 +13,23 @@
     "Description": null,
     "CustomFields": {},
     "EffectiveID": "MainStory"
+  },
+  "dialog-sequence:036c139a1afea934ab2f2546159c59c9": {
+    "ID": "dialog-sequence:036c139a1afea934ab2f2546159c59c9",
+    "PackID": "dialog-sequence:036c139a1afea934ab2f2546159c59c9",
+    "Kind": 2,
+    "Storage": 0,
+    "ResourcePath": "Dialog/TestDialogSequence",
+    "ObjectType": "DialogSequenceSO",
+    "GraphType": null,
+    "DisplayName": "TestDialogSequence",
+    "Author": null,
+    "Version": "1.0.0",
+    "Description": "",
+    "CustomFields": {
+      "AssetPath": "Assets/Resources/Dialog/TestDialogSequence.asset",
+      "AssetGuid": "036c139a1afea934ab2f2546159c59c9"
+    },
+    "EffectiveID": "dialog-sequence:036c139a1afea934ab2f2546159c59c9"
   }
 }

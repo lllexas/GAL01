@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using SpaceTUI;
-using UnityEngine.EventSystems;
+using NekoGraph;
 
 namespace GAL
 {
@@ -38,12 +38,14 @@ namespace GAL
         {
             期望显示面板 += OnShowPanel;
             期望隐藏面板 += OnHidePanel;
-            PostSystem.Instance.Subscribe("期望高亮角色", OnHighlightSpeaker);
+            PostSystem.Instance.On("期望高亮角色", OnHighlightSpeaker);
         }
         
-        void OnDestroy()
+        protected override void OnDestroy()
         {
-            PostSystem.Instance.Unsubscribe("期望高亮角色", OnHighlightSpeaker);
+            base.OnDestroy();
+            // 安全注销：场景卸载时 Instance 可能已为 null
+            PostSystem.Instance?.Off("期望高亮角色", OnHighlightSpeaker);
         }
         
         void OnHighlightSpeaker(object data)

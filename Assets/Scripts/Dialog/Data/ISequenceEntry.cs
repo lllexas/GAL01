@@ -1,7 +1,6 @@
 using System;
 
-namespace GAL01.Dialog.Data
-{
+
     /// <summary>
     /// 对话序列条目接口 - 支持对话文本和演出效果的统一抽象
     /// </summary>
@@ -15,11 +14,11 @@ namespace GAL01.Dialog.Data
     {
         /// <summary>有规律的唯一 ID，如 intro_001</summary>
         public string Id;
-        
+
         /// <summary>说话者标识</summary>
         public string Speaker;
-        
+
         /// <summary>对话内容</summary>
         public string Content;
     }
-}
+

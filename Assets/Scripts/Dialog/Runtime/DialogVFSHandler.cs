@@ -1,16 +1,15 @@
-using GAL01.Dialog.Data;
+
 using NekoGraph;
 using UnityEngine;
 
-namespace GAL01.Dialog.Runtime
-{
     /// <summary>
     /// Dialog VFS 处理器 - 处理 .dialog 后缀的 VFS 文件节点
-    /// 
-    /// 继电器模式：
+    ///
+    /// 当前策略：
     /// 1. 校验并解析 DialogSequenceSO
-    /// 2. 将序列交给 DialogPlayer（MonoBehaviour 协程）播放
-    /// 3. 返回 Nope，由 DialogPlayer 播放完成后自行 InjectSignal 恢复信号流
+    /// 2. 输出条目摘要，便于排查数据问题
+    /// 3. 若存在可用的 DialogPlayer，则交由其异步接管并返回 Nope
+    /// 4. 若当前还没有真正的运行时播放器，则安全透传后续节点
     /// </summary>
     public static class DialogVFSHandler
     {
@@ -63,14 +62,18 @@ namespace GAL01.Dialog.Runtime
                     case ScreenFlashEntry flash:
                         Debug.Log($"[{i}] Flash: {flash.FlashType} ({flash.Duration}s)");
                         break;
+                    default:
+                        Debug.LogWarning($"[DialogVFSHandler] Entry[{i}] 类型未识别: {entry.GetType().FullName}");
+                        break;
                 }
             }
-            
-            // 3. 继电器模式：交给 DialogPlayer，返回 Nope
-            // DialogPlayer 完成后会调用 runner.InjectSignal 恢复信号流
-            DialogPlayer.Play(sequence, context, pack, runner, packInstanceID);
-            
-            return HandleResult.Nope;
+
+            // 3. 运行时播放器尚未真正接入时，不能返回 Nope 把流程挂死。
+            bool handledAsync = DialogPlayer.TryPlay(sequence, context, pack, runner, packInstanceID);
+            if (handledAsync)
+                return HandleResult.Nope;
+
+            Debug.LogWarning($"[DialogVFSHandler] '{sequence.name}' 当前走透传模式，未阻塞图流程");
+            return HandleResult.Push;
         }
     }
-}

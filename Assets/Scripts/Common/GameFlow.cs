@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using NekoGraph;
 
 public class GameFlow : SingletonMono<GameFlow>
 {

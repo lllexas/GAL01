@@ -8,6 +8,9 @@ using SpaceTUI;
 
 namespace GAL
 {
+    /// <summary>
+    /// 对话数据 - Model 层
+    /// </summary>
     public class DialogueData
     {
         public string characterName;
@@ -24,6 +27,24 @@ namespace GAL
     public class SpeakerData
     {
         public int? slotIndex;  // null = 无人说话
+    }
+    
+    /// <summary>
+    /// 对话数据包 - 包含回调（后端推送用）
+    /// </summary>
+    public class DialoguePackage
+    {
+        public DialogueData data;
+        public System.Action onComplete;
+    }
+    
+    /// <summary>
+    /// 选项数据包
+    /// </summary>
+    public class ChoicePackage
+    {
+        public string[] choices;
+        public System.Action<int> onSelect;
     }
     
     /// <summary>
@@ -57,16 +78,18 @@ namespace GAL
             鼠标点击 += OnClickAdvance;
             
             // 订阅纯事件驱动的数据包
-            PostSystem.Instance.Subscribe("对话数据", OnDialogueDataReceived);
-            PostSystem.Instance.Subscribe("期望显示选项", OnChoicesReceived);
+            PostSystem.Instance.On("对话数据", OnDialogueDataReceived);
+            PostSystem.Instance.On("期望显示选项", OnChoicesReceived);
             
             Hide();
         }
         
-        void OnDestroy()
+        protected override void OnDestroy()
         {
-            PostSystem.Instance.Unsubscribe("对话数据", OnDialogueDataReceived);
-            PostSystem.Instance.Unsubscribe("期望显示选项", OnChoicesReceived);
+            base.OnDestroy();
+            // 安全注销：场景卸载时 Instance 可能已为 null
+            PostSystem.Instance?.Off("对话数据", OnDialogueDataReceived);
+            PostSystem.Instance?.Off("期望显示选项", OnChoicesReceived);
         }
         
         void OnDialogueDataReceived(object data)

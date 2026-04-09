@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GAL01.Dialog.Data
-{
+
     /// <summary>
     /// 相机表现力配置库 - 预定义各种镜头效果
     /// 
@@ -158,4 +157,4 @@ namespace GAL01.Dialog.Data
 #endif
         }
     }
-}
+

@@ -1,677 +1,857 @@
+
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using GAL01.Dialog.Data;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 
-namespace GAL01.Dialog.Editor
+[CustomEditor(typeof(DialogSequenceSO))]
+public class DialogSequenceSOEditor : UnityEditor.Editor
 {
-    [CustomEditor(typeof(DialogSequenceSO))]
-    public class DialogSequenceSOEditor : UnityEditor.Editor
+    private const string AnchorMetaRoot = "Assets/Scripts/Dialog/Editor/AnchorMeta";
+    private const float ListHeight = 320f;
+
+    private DialogSequenceSO _target;
+    private DialogSequenceAnchorMeta _anchorMeta;
+    private string _sequenceMetaId;
+    private string _search = string.Empty;
+    private bool _mergeDialogs;
+    private bool _compactEffects;
+    private int _selectedIndex = -1;
+    private Vector2 _scroll;
+    private readonly List<Row> _rows = new();
+    private readonly Dictionary<EffectEntry, DialogSequenceEffectAnchorRecord> _anchors = new();
+
+    private string PrefsKey => $"DialogSequenceSOEditor_{_target.GetInstanceID()}";
+
+    private void OnEnable()
     {
-        private DialogSequenceSO _target;
-        private ReorderableList _entryList;
-        private SerializedProperty _entriesProp;
-        
-        // 显示控制
-        private int _displayCount = 20;
-        private bool _mergeDialogEntries = false;
-        private bool _compactEffectEntries = false;
-        
-        // 合并后的显示项缓存
-        private List<DisplayItem> _displayItems = new();
-        private bool _needsRebuildDisplay = true;
+        _target = (DialogSequenceSO)target;
+        _search = EditorPrefs.GetString(PrefsKey + "_Search", string.Empty);
+        _mergeDialogs = EditorPrefs.GetBool(PrefsKey + "_Merge", false);
+        _compactEffects = EditorPrefs.GetBool(PrefsKey + "_Compact", false);
+        _selectedIndex = Mathf.Clamp(_selectedIndex, -1, _target.Entries.Count - 1);
+        _sequenceMetaId = EnsureSequenceMetaId();
+        _anchorMeta = LoadOrCreateAnchorMeta();
+        RebuildRows();
+    }
 
-        private void OnEnable()
+    private void OnDisable()
+    {
+        if (_target == null) return;
+        EditorPrefs.SetString(PrefsKey + "_Search", _search ?? string.Empty);
+        EditorPrefs.SetBool(PrefsKey + "_Merge", _mergeDialogs);
+        EditorPrefs.SetBool(PrefsKey + "_Compact", _compactEffects);
+        SaveAnchorMeta();
+    }
+
+    public override void OnInspectorGUI()
+    {
+        serializedObject.Update();
+        DrawSource();
+        EditorGUILayout.Space(8f);
+        DrawBuild();
+        EditorGUILayout.Space(8f);
+        DrawToolbar();
+        EditorGUILayout.Space(6f);
+        DrawSearch();
+        EditorGUILayout.Space(6f);
+        DrawList();
+        EditorGUILayout.Space(10f);
+        DrawDetails();
+        serializedObject.ApplyModifiedProperties();
+    }
+
+    private void DrawSource()
+    {
+        EditorGUILayout.LabelField("CSV 源", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(DialogSequenceSO.CsvSource)));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(DialogSequenceSO.SequenceId)));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(DialogSequenceSO.Description)));
+        if (!string.IsNullOrWhiteSpace(_sequenceMetaId))
+            EditorGUILayout.LabelField($"MetaLib ID: {_sequenceMetaId}", EditorStyles.miniLabel);
+    }
+
+    private void DrawBuild()
+    {
+        using (new EditorGUI.DisabledScope(_target.CsvSource == null))
         {
-            _target = (DialogSequenceSO)target;
-            _entriesProp = serializedObject.FindProperty("Entries");
-            
-            _entryList = new ReorderableList(serializedObject, _entriesProp, 
-                draggable: true, 
-                displayHeader: true, 
-                displayAddButton: true, 
-                displayRemoveButton: true);
-
-            _entryList.drawHeaderCallback = rect =>
-            {
-                EditorGUI.LabelField(rect, $"条目序列 ({_target.Entries.Count})");
-            };
-
-            _entryList.drawElementCallback = (rect, index, isActive, isFocused) =>
-            {
-                if (_mergeDialogEntries || _compactEffectEntries)
-                    DrawVirtualElement(rect, index);
-                else
-                    DrawEntryElement(rect, index);
-            };
-
-            _entryList.elementHeightCallback = index => 
-            {
-                if (!_needsRebuildDisplay)
-                    return GetElementHeight(index);
-                return 30f;
-            };
-
-            _entryList.onAddDropdownCallback = (rect, list) =>
-            {
-                int insertIndex = list.index >= 0 ? list.index + 1 : list.count;
-                var menu = new GenericMenu();
-                menu.AddItem(new GUIContent("💬 对话条目"), false, () => AddEntryAt<DialogEntry>(insertIndex));
-                menu.AddItem(new GUIContent("👤 头像效果"), false, () => AddEntryAt<AvatarEffectEntry>(insertIndex));
-                menu.AddItem(new GUIContent("🔊 语音效果"), false, () => AddEntryAt<VoiceEffectEntry>(insertIndex));
-                menu.AddItem(new GUIContent("📷 镜头效果"), false, () => AddEntryAt<CameraEffectEntry>(insertIndex));
-                menu.AddItem(new GUIContent("⚡ 屏幕闪烁"), false, () => AddEntryAt<ScreenFlashEntry>(insertIndex));
-                menu.ShowAsContext();
-            };
-            
-            _entryList.onChangedCallback = list =>
-            {
-                _needsRebuildDisplay = true;
-            };
-        }
-
-        public override void OnInspectorGUI()
-        {
-            serializedObject.Update();
-            
-            // 检查是否需要重建显示项
-            if (_needsRebuildDisplay)
-            {
-                RebuildDisplayItems();
-                _needsRebuildDisplay = false;
-            }
-
-            EditorGUILayout.Space(10);
-
-            // CSV 文件引用
-            EditorGUILayout.LabelField("CSV 源", EditorStyles.boldLabel);
-            DrawCsvField();
-
-            EditorGUILayout.Space(5);
-
-            // 基础配置
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("SequenceId"));
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("Description"));
-
-            EditorGUILayout.Space(10);
-
-            // 构建按钮
-            GUI.enabled = _target.CsvSource != null;
-            if (GUILayout.Button("🔃 从 CSV 构建序列", GUILayout.Height(30)))
+            if (GUILayout.Button("从 CSV 构建序列", GUILayout.Height(28f)))
             {
                 BuildFromCsv();
-                _needsRebuildDisplay = true;
+                GUIUtility.ExitGUI();
             }
-            GUI.enabled = true;
+        }
 
-            EditorGUILayout.Space(10);
+        int dialogs = _target.Entries.OfType<DialogEntry>().Count();
+        int effects = _target.Entries.OfType<EffectEntry>().Count();
+        EditorGUILayout.LabelField($"统计: {dialogs} 对话 / {effects} 演出 / {_target.Entries.Count} 总条目", EditorStyles.miniLabel);
+    }
 
-            // 统计
-            int dialogCount = _target.Entries.OfType<DialogEntry>().Count();
-            int effectCount = _target.Entries.OfType<EffectEntry>().Count();
-            EditorGUILayout.LabelField($"统计: {dialogCount} 对话 / {effectCount} 演出", EditorStyles.miniLabel);
+    private void DrawToolbar()
+    {
+        EditorGUI.BeginChangeCheck();
+        EditorGUILayout.BeginHorizontal();
+        _mergeDialogs = GUILayout.Toggle(_mergeDialogs, "合并对话", EditorStyles.miniButtonLeft);
+        _compactEffects = GUILayout.Toggle(_compactEffects, "紧凑特效", EditorStyles.miniButtonMid);
+        if (GUILayout.Button("刷新", EditorStyles.miniButtonRight, GUILayout.Width(60f))) RebuildRows();
+        EditorGUILayout.EndHorizontal();
+        if (EditorGUI.EndChangeCheck()) RebuildRows();
 
-            EditorGUILayout.Space(10);
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("新增对话")) AddEntry<DialogEntry>();
+        if (GUILayout.Button("新增头像")) AddEntry<AvatarEffectEntry>();
+        if (GUILayout.Button("新增语音")) AddEntry<VoiceEffectEntry>();
+        if (GUILayout.Button("新增镜头")) AddEntry<CameraEffectEntry>();
+        if (GUILayout.Button("新增闪屏")) AddEntry<ScreenFlashEntry>();
+        EditorGUILayout.EndHorizontal();
 
-            // 显示控制
-            EditorGUI.BeginChangeCheck();
+        using (new EditorGUI.DisabledScope(_selectedIndex < 0 || _selectedIndex >= _target.Entries.Count))
+        {
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("显示:", GUILayout.Width(40));
-            _displayCount = EditorGUILayout.IntSlider(_displayCount, 5, 100, GUILayout.Width(200));
-            EditorGUILayout.LabelField($"条目 (共{_target.Entries.Count})", GUILayout.Width(80));
-            
-            _mergeDialogEntries = GUILayout.Toggle(_mergeDialogEntries, "合并对话", GUILayout.Width(70));
-            _compactEffectEntries = GUILayout.Toggle(_compactEffectEntries, "紧凑特效", GUILayout.Width(70));
+            if (GUILayout.Button("上移")) MoveSelected(-1);
+            if (GUILayout.Button("下移")) MoveSelected(1);
+            if (GUILayout.Button("删除")) RemoveSelected();
             EditorGUILayout.EndHorizontal();
-            
-            if (EditorGUI.EndChangeCheck())
-            {
-                _needsRebuildDisplay = true;
-            }
-
-            EditorGUILayout.Space(5);
-
-            // 可拖拽排序列表（限制显示数量）
-            int originalCount = _entryList.count;
-            if ((_mergeDialogEntries || _compactEffectEntries) && _displayItems.Count > 0)
-            {
-                // 使用虚拟列表显示
-                DrawVirtualList();
-            }
-            else
-            {
-                // 限制显示数量
-                EditorGUILayout.LabelField($"显示前 {Mathf.Min(_displayCount, _target.Entries.Count)} 条 (共 {_target.Entries.Count} 条)", EditorStyles.miniLabel);
-                _entryList.DoLayoutList();
-            }
-
-            EditorGUILayout.Space(10);
-            
-            // 选中条目详情编辑
-            DrawSelectedEntryDetails();
-
-            serializedObject.ApplyModifiedProperties();
         }
-        
-        private void RebuildDisplayItems()
+    }
+
+    private void DrawSearch()
+    {
+        EditorGUILayout.BeginVertical(GUI.skin.box);
+        string next = EditorGUILayout.TextField("搜索", _search);
+        if (next != _search)
         {
-            _displayItems.Clear();
-            int i = 0;
-            
-            while (i < _target.Entries.Count && _displayItems.Count < _displayCount)
+            _search = next;
+            _scroll = Vector2.zero;
+            RebuildRows();
+        }
+
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("支持: ID / Speaker / Content / 效果 / 锚点", EditorStyles.miniLabel);
+        if (GUILayout.Button("下一个", GUILayout.Width(70f))) SelectNextResult();
+        if (GUILayout.Button("清空", GUILayout.Width(60f)))
+        {
+            _search = string.Empty;
+            _scroll = Vector2.zero;
+            RebuildRows();
+        }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
+    }
+
+    private void DrawList()
+    {
+        EditorGUILayout.BeginVertical(GUI.skin.box, GUILayout.Height(ListHeight));
+        _scroll = EditorGUILayout.BeginScrollView(_scroll, GUILayout.Height(ListHeight - 8f));
+        if (_rows.Count == 0)
+        {
+            EditorGUILayout.HelpBox(string.IsNullOrWhiteSpace(_search) ? "当前没有条目。" : "没有匹配结果。", MessageType.Info);
+        }
+        else
+        {
+            foreach (Row row in _rows)
             {
-                var entry = _target.Entries[i];
-                
-                // 检查是否是连续对话的开始
-                if (_mergeDialogEntries && entry is DialogEntry)
+                Rect rect = EditorGUILayout.GetControlRect(false, row.Height);
+                if (row.Index == _selectedIndex && row.Index >= 0)
+                    EditorGUI.DrawRect(rect, new Color(0.2f, 0.4f, 0.6f, 0.2f));
+
+                if (row.Kind == RowKind.Collapsed)
                 {
-                    int groupStart = i;
-                    int groupEnd = i;
-                    
-                    // 找到连续对话的结尾
-                    while (groupEnd + 1 < _target.Entries.Count && _target.Entries[groupEnd + 1] is DialogEntry)
-                    {
-                        groupEnd++;
-                    }
-                    
-                    int groupSize = groupEnd - groupStart + 1;
-                    
-                    if (groupSize >= 3)
-                    {
-                        // 3条以上：显示头、省略、尾
-                        _displayItems.Add(new DisplayItem 
-                        { 
-                            Type = DisplayItemType.DialogHead,
-                            Entry = _target.Entries[groupStart],
-                            RealIndex = groupStart,
-                            Height = 28f
-                        });
-                        
-                        _displayItems.Add(new DisplayItem 
-                        { 
-                            Type = DisplayItemType.DialogCollapsed, 
-                            Entry = null,
-                            CollapsedCount = groupSize - 2,
-                            RealIndex = -1,
-                            Height = 20f
-                        });
-                        
-                        _displayItems.Add(new DisplayItem 
-                        { 
-                            Type = DisplayItemType.DialogTail,
-                            Entry = _target.Entries[groupEnd],
-                            RealIndex = groupEnd,
-                            Height = 28f
-                        });
-                    }
-                    else
-                    {
-                        // 2条或更少：正常显示
-                        for (int j = groupStart; j <= groupEnd && _displayItems.Count < _displayCount; j++)
-                        {
-                            _displayItems.Add(new DisplayItem 
-                            { 
-                                Type = DisplayItemType.Normal, 
-                                Entry = _target.Entries[j],
-                                RealIndex = j,
-                                Height = 28f
-                            });
-                        }
-                    }
-                    
-                    i = groupEnd + 1;
-                }
-                else if (_compactEffectEntries && entry is EffectEntry)
-                {
-                    _displayItems.Add(new DisplayItem 
-                    { 
-                        Type = DisplayItemType.CompactEffect, 
-                        Entry = entry,
-                        RealIndex = i,
-                        Height = 16f
-                    });
-                    i++;
+                    EditorGUI.LabelField(rect, $"    ... {row.CollapsedCount} 条连续对话已折叠 ...", EditorStyles.miniLabel);
                 }
                 else
                 {
-                    _displayItems.Add(new DisplayItem 
-                    { 
-                        Type = DisplayItemType.Normal, 
-                        Entry = entry,
-                        RealIndex = i,
-                        Height = 28f
-                    });
-                    i++;
+                    Rect left = new Rect(rect.x + 8f, rect.y + 2f, 110f, EditorGUIUtility.singleLineHeight);
+                    Rect right = new Rect(rect.x + 120f, rect.y + 2f, rect.width - 128f, EditorGUIUtility.singleLineHeight);
+                    EditorGUI.LabelField(left, $"[{row.Index}] {row.Title}", row.Kind == RowKind.CompactEffect ? EditorStyles.miniBoldLabel : EditorStyles.boldLabel);
+                    EditorGUI.LabelField(right, row.Preview, EditorStyles.miniLabel);
+                }
+
+                if (row.Index >= 0 && Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
+                {
+                    _selectedIndex = row.Index;
+                    Event.current.Use();
+                    Repaint();
                 }
             }
         }
-        
-        private void DrawVirtualList()
+        EditorGUILayout.EndScrollView();
+        EditorGUILayout.EndVertical();
+    }
+    private void DrawDetails()
+    {
+        if (_selectedIndex < 0 || _selectedIndex >= _target.Entries.Count) return;
+        ISequenceEntry entry = _target.Entries[_selectedIndex];
+        if (entry == null) return;
+
+        EditorGUILayout.LabelField($"编辑条目 [{_selectedIndex}] {GetEntryTitle(entry)}", EditorStyles.boldLabel);
+        EditorGUILayout.BeginVertical(GUI.skin.box);
+        switch (entry)
         {
-            EditorGUILayout.LabelField($"显示 {_displayItems.Count} 条 (共 {_target.Entries.Count} 条) | 拖拽排序已启用", EditorStyles.miniLabel);
-            
-            Rect listRect = EditorGUILayout.GetControlRect(false, Mathf.Min(_displayItems.Count * 30f + 20f, 400f));
-            _entryList.DoList(listRect);
+            case DialogEntry dialog: EditDialog(dialog); break;
+            case AvatarEffectEntry avatar: EditAvatar(avatar); break;
+            case VoiceEffectEntry voice: EditVoice(voice); break;
+            case CameraEffectEntry camera: EditCamera(camera); break;
+            case ScreenFlashEntry flash: EditFlash(flash); break;
         }
-        
-        private float GetElementHeight(int index)
+        EditorGUILayout.EndVertical();
+    }
+
+    private void EditDialog(DialogEntry entry)
+    {
+        string id = EditorGUILayout.TextField("ID", entry.Id);
+        string speaker = EditorGUILayout.TextField("说话者", entry.Speaker);
+        EditorGUILayout.LabelField("内容");
+        string content = EditorGUILayout.TextArea(entry.Content, GUILayout.MinHeight(72f));
+        if (id == entry.Id && speaker == entry.Speaker && content == entry.Content) return;
+        Undo.RecordObject(_target, "Edit Dialog Entry");
+        entry.Id = id;
+        entry.Speaker = speaker;
+        entry.Content = content;
+        MarkDirty();
+    }
+
+    private void EditAvatar(AvatarEffectEntry entry)
+    {
+        string characterId = EditorGUILayout.TextField("角色 ID", entry.CharacterId);
+        Sprite avatar = (Sprite)EditorGUILayout.ObjectField("头像", entry.Avatar, typeof(Sprite), false);
+        FadeType fade = (FadeType)EditorGUILayout.EnumPopup("淡入方式", entry.FadeIn);
+        if (characterId != entry.CharacterId || avatar != entry.Avatar || fade != entry.FadeIn)
         {
-            if (index < 0 || index >= _displayItems.Count) return 30f;
-            return _displayItems[index].Height;
+            Undo.RecordObject(_target, "Edit Avatar Effect");
+            entry.CharacterId = characterId;
+            entry.Avatar = avatar;
+            entry.FadeIn = fade;
+            MarkDirty();
         }
-        
-        private void DrawVirtualElement(Rect rect, int displayIndex)
+        DrawAnchorInfo(entry);
+    }
+
+    private void EditVoice(VoiceEffectEntry entry)
+    {
+        string targetId = EditorGUILayout.TextField("目标对话 ID", entry.TargetDialogId);
+        AudioClip clip = (AudioClip)EditorGUILayout.ObjectField("语音", entry.VoiceClip, typeof(AudioClip), false);
+        if (targetId != entry.TargetDialogId || clip != entry.VoiceClip)
         {
-            if (displayIndex < 0 || displayIndex >= _displayItems.Count) return;
-            
-            var item = _displayItems[displayIndex];
-            
-            switch (item.Type)
+            Undo.RecordObject(_target, "Edit Voice Effect");
+            entry.TargetDialogId = targetId;
+            entry.VoiceClip = clip;
+            MarkDirty();
+        }
+        DrawAnchorInfo(entry);
+    }
+
+    private void EditCamera(CameraEffectEntry entry)
+    {
+        CameraProfileSO profile = (CameraProfileSO)EditorGUILayout.ObjectField("Profile", entry.Profile, typeof(CameraProfileSO), false);
+        if (profile != entry.Profile)
+        {
+            Undo.RecordObject(_target, "Edit Camera Effect");
+            entry.Profile = profile;
+            MarkDirty();
+        }
+        DrawAnchorInfo(entry);
+    }
+
+    private void EditFlash(ScreenFlashEntry entry)
+    {
+        ScreenFlashType flashType = (ScreenFlashType)EditorGUILayout.EnumPopup("闪屏颜色", entry.FlashType);
+        float duration = Mathf.Max(0f, EditorGUILayout.FloatField("持续时间", entry.Duration));
+        if (flashType != entry.FlashType || !Mathf.Approximately(duration, entry.Duration))
+        {
+            Undo.RecordObject(_target, "Edit Screen Flash");
+            entry.FlashType = flashType;
+            entry.Duration = duration;
+            MarkDirty();
+        }
+        DrawAnchorInfo(entry);
+    }
+
+    private void DrawAnchorInfo(EffectEntry effect)
+    {
+        _anchors.TryGetValue(effect, out DialogSequenceEffectAnchorRecord record);
+        EditorGUILayout.Space(6f);
+        EditorGUILayout.LabelField("当前锚点", EditorStyles.miniBoldLabel);
+        EditorGUI.BeginDisabledGroup(true);
+        EditorGUILayout.TextField("Speaker", record?.AnchorSpeaker ?? string.Empty);
+        EditorGUILayout.TextField("Content", record?.AnchorContentPreview ?? string.Empty);
+        EditorGUILayout.TextField("Signature", record?.AnchorSignature ?? string.Empty);
+        EditorGUILayout.IntField("Occurrence", record?.AnchorOccurrence ?? 0);
+        EditorGUILayout.IntField("Fallback Bucket", record?.FallbackBucket ?? 0);
+        EditorGUI.EndDisabledGroup();
+    }
+
+    private void AddEntry<T>() where T : class, ISequenceEntry, new()
+    {
+        Undo.RecordObject(_target, $"Add {typeof(T).Name}");
+        int insert = _selectedIndex >= 0 ? _selectedIndex + 1 : _target.Entries.Count;
+        insert = Mathf.Clamp(insert, 0, _target.Entries.Count);
+        _target.Entries.Insert(insert, CreateDefaultEntry<T>());
+        _selectedIndex = insert;
+        MarkDirty();
+    }
+
+    private T CreateDefaultEntry<T>() where T : class, ISequenceEntry, new()
+    {
+        if (typeof(T) != typeof(DialogEntry)) return new T();
+        int number = _target.Entries.OfType<DialogEntry>().Count() + 1;
+        string prefix = string.IsNullOrWhiteSpace(_target.SequenceId) ? "dialog" : _target.SequenceId.Trim();
+        return new DialogEntry { Id = $"{prefix}_{number:D3}", Speaker = string.Empty, Content = string.Empty } as T;
+    }
+
+    private void RemoveSelected()
+    {
+        if (_selectedIndex < 0 || _selectedIndex >= _target.Entries.Count) return;
+        Undo.RecordObject(_target, "Remove Entry");
+        _target.Entries.RemoveAt(_selectedIndex);
+        _selectedIndex = Mathf.Clamp(_selectedIndex, -1, _target.Entries.Count - 1);
+        MarkDirty();
+    }
+
+    private void MoveSelected(int delta)
+    {
+        if (_selectedIndex < 0 || _selectedIndex >= _target.Entries.Count) return;
+        int target = Mathf.Clamp(_selectedIndex + delta, 0, _target.Entries.Count - 1);
+        if (target == _selectedIndex) return;
+        Undo.RecordObject(_target, "Move Entry");
+        (_target.Entries[_selectedIndex], _target.Entries[target]) = (_target.Entries[target], _target.Entries[_selectedIndex]);
+        _selectedIndex = target;
+        MarkDirty();
+    }
+
+    private void BuildFromCsv()
+    {
+        List<DialogEntry> dialogs = ParseCsv(_target.CsvSource.text);
+        if (dialogs.Count == 0)
+        {
+            EditorUtility.DisplayDialog("构建失败", "CSV 解析结果为空。", "确定");
+            return;
+        }
+
+        SaveAnchorMeta();
+        Undo.RecordObject(_target, "Build Dialog Sequence");
+
+        var oldDialogs = _target.Entries.OfType<DialogEntry>().Where(x => !string.IsNullOrWhiteSpace(x.Id)).GroupBy(x => x.Id).ToDictionary(x => x.Key, x => x.First());
+        List<EffectPlacement> placements = BuildPlacements();
+        var lookup = BuildDialogOccurrenceLookup(dialogs);
+        var placed = new HashSet<EffectEntry>();
+        var rebuilt = new List<ISequenceEntry>();
+
+        AddFallbackBucket(rebuilt, placements, placed, 0);
+        for (int i = 0; i < dialogs.Count; i++)
+        {
+            DialogEntry parsed = dialogs[i];
+            DialogEntry effective = oldDialogs.TryGetValue(parsed.Id, out DialogEntry existing) ? existing : parsed;
+            effective.Speaker = parsed.Speaker;
+            effective.Content = parsed.Content;
+            rebuilt.Add(effective);
+
+            foreach (EffectPlacement placement in placements)
             {
-                case DisplayItemType.DialogHead:
-                    DrawDialogHead(rect, item.Entry as DialogEntry, item.RealIndex);
-                    break;
-                case DisplayItemType.DialogTail:
-                    DrawDialogTail(rect, item.Entry as DialogEntry, item.RealIndex);
-                    break;
-                case DisplayItemType.DialogCollapsed:
-                    DrawDialogCollapsed(rect, item.CollapsedCount);
-                    break;
-                case DisplayItemType.CompactEffect:
-                    DrawCompactEffect(rect, item.Entry);
-                    break;
-                default:
-                    DrawEntryElement(rect, item.RealIndex);
-                    break;
+                if (placed.Contains(placement.Effect) || !placement.HasAnchor) continue;
+                if (!MatchesAnchor(placement.Record, effective, lookup, i)) continue;
+                rebuilt.Add(placement.Effect);
+                placed.Add(placement.Effect);
             }
+
+            AddFallbackBucket(rebuilt, placements, placed, i + 1);
         }
-        
-        private void DrawDialogHead(Rect rect, DialogEntry entry, int realIndex)
+
+        foreach (EffectPlacement placement in placements.Where(x => !placed.Contains(x.Effect)).OrderBy(x => x.FallbackBucket).ThenBy(x => x.Order))
         {
-            float iconWidth = 25f;
-            Rect iconRect = new Rect(rect.x + 5f, rect.y + 3f, iconWidth, 20f);
-            Rect textRect = new Rect(rect.x + iconWidth + 10f, rect.y + 3f, rect.width - iconWidth - 30f, 20f);
-            Rect expandRect = new Rect(rect.x + rect.width - 25f, rect.y + 3f, 20f, 20f);
-            
-            GUI.Label(iconRect, "💬", EditorStyles.largeLabel);
-            string preview = $"[{realIndex}] {entry.Speaker}: {(entry.Content?.Length > 20 ? entry.Content.Substring(0, 20) + "..." : entry.Content)}";
-            GUI.Label(textRect, preview, EditorStyles.boldLabel);
-            
-            // 展开提示
-            GUI.Label(expandRect, "▼", EditorStyles.miniLabel);
+            rebuilt.Add(placement.Effect);
+            placed.Add(placement.Effect);
         }
-        
-        private void DrawDialogTail(Rect rect, DialogEntry entry, int realIndex)
+
+        _target.Entries = rebuilt;
+        _selectedIndex = Mathf.Clamp(_selectedIndex, -1, _target.Entries.Count - 1);
+        MarkDirty();
+        EditorUtility.DisplayDialog("构建完成", $"生成了 {dialogs.Count} 条对话，保留了 {rebuilt.OfType<EffectEntry>().Count()} 条演出。", "确定");
+    }
+
+    private void AddFallbackBucket(List<ISequenceEntry> rebuilt, List<EffectPlacement> placements, HashSet<EffectEntry> placed, int bucket)
+    {
+        foreach (EffectPlacement placement in placements)
         {
-            float iconWidth = 25f;
-            Rect iconRect = new Rect(rect.x + 5f, rect.y + 3f, iconWidth, 20f);
-            Rect textRect = new Rect(rect.x + iconWidth + 10f, rect.y + 3f, rect.width - iconWidth - 15f, 20f);
-            
-            GUI.Label(iconRect, "💬", EditorStyles.largeLabel);
-            string preview = $"[{realIndex}] {entry.Speaker}: {(entry.Content?.Length > 20 ? entry.Content.Substring(0, 20) + "..." : entry.Content)}";
-            GUI.Label(textRect, preview, EditorStyles.boldLabel);
+            if (placed.Contains(placement.Effect) || placement.HasAnchor || placement.FallbackBucket != bucket) continue;
+            rebuilt.Add(placement.Effect);
+            placed.Add(placement.Effect);
         }
-        
-        private void DrawDialogCollapsed(Rect rect, int count)
+    }
+    private List<EffectPlacement> BuildPlacements()
+    {
+        var sidecar = (_anchorMeta?.Records ?? new List<DialogSequenceEffectAnchorRecord>())
+            .ToDictionary(x => $"{x.EffectType}|{x.EffectFingerprint}|{x.FingerprintOccurrence}", x => x, StringComparer.Ordinal);
+
+        var placements = new List<EffectPlacement>();
+        var counters = new Dictionary<string, int>(StringComparer.Ordinal);
+        int dialogCount = 0;
+        int order = 0;
+
+        foreach (ISequenceEntry entry in _target.Entries)
         {
-            Rect textRect = new Rect(rect.x + 40f, rect.y + 2f, rect.width - 50f, 16f);
-            GUI.Label(textRect, $"    ... {count} 条对话已折叠 ...", EditorStyles.miniLabel);
-        }
-        
-        private void DrawCompactEffect(Rect rect, ISequenceEntry entry)
-        {
-            Color color = entry switch
+            if (entry is DialogEntry)
             {
-                CameraEffectEntry => new Color(0.8f, 0.4f, 0.4f),
-                AvatarEffectEntry => new Color(0.4f, 0.6f, 0.8f),
-                VoiceEffectEntry => new Color(0.4f, 0.8f, 0.4f),
-                ScreenFlashEntry => new Color(0.9f, 0.9f, 0.4f),
-                _ => Color.gray
-            };
-            
-            string icon = entry switch
-            {
-                CameraEffectEntry => "📷",
-                AvatarEffectEntry => "👤",
-                VoiceEffectEntry => "🔊",
-                ScreenFlashEntry => "⚡",
-                _ => "●"
-            };
-            
-            Rect iconRect = new Rect(rect.x + 5f, rect.y + 1f, 20f, 14f);
-            Rect barRect = new Rect(rect.x + 30f, rect.y + 5f, rect.width - 40f, 6f);
-            
-            GUI.Label(iconRect, icon, EditorStyles.miniLabel);
-            EditorGUI.DrawRect(barRect, color);
+                dialogCount++;
+                continue;
+            }
+            if (entry is not EffectEntry effect) continue;
+
+            string type = effect.GetType().Name;
+            string fingerprint = BuildEffectFingerprint(effect);
+            string counterKey = type + "|" + fingerprint;
+            counters.TryGetValue(counterKey, out int count);
+            int occurrence = count + 1;
+            counters[counterKey] = occurrence;
+            sidecar.TryGetValue($"{type}|{fingerprint}|{occurrence}", out DialogSequenceEffectAnchorRecord record);
+            placements.Add(new EffectPlacement { Effect = effect, Record = record, FallbackBucket = record?.FallbackBucket ?? dialogCount, Order = record?.OriginalOrder ?? order });
+            order++;
         }
 
-        private void DrawEntryElement(Rect rect, int index)
+        return placements;
+    }
+
+    private List<DialogEntry> ParseCsv(string csv)
+    {
+        var rows = ParseRows(csv);
+        var result = new List<DialogEntry>();
+        if (rows.Count < 2) return result;
+
+        List<string> headers = rows[0];
+        int idIndex = FindIndex(headers, "id", 0);
+        int speakerIndex = FindIndex(headers, "speaker", 1);
+        int contentIndex = FindIndex(headers, "content", 2);
+        int generated = 1;
+
+        foreach (List<string> row in rows.Skip(1))
         {
-            if (index < 0 || index >= _target.Entries.Count) return;
-            
-            var entry = _target.Entries[index];
-            if (entry == null) return;
+            if (row.All(string.IsNullOrWhiteSpace)) continue;
+            string id = GetCell(row, idIndex);
+            if (string.IsNullOrWhiteSpace(id)) id = GenerateDialogId(generated);
+            else if (int.TryParse(id, out int number)) id = GenerateDialogId(number);
+            result.Add(new DialogEntry { Id = id.Trim(), Speaker = GetCell(row, speakerIndex), Content = GetCell(row, contentIndex) });
+            generated++;
+        }
 
-            float iconWidth = 25f;
-            float typeWidth = 60f;
+        return result;
+    }
 
-            Rect iconRect = new Rect(rect.x, rect.y + 5, iconWidth, 20);
-            Rect typeRect = new Rect(rect.x + iconWidth, rect.y + 5, typeWidth, 20);
-
-            string icon = entry switch
+    private List<List<string>> ParseRows(string csv)
+    {
+        var rows = new List<List<string>>();
+        var row = new List<string>();
+        var cell = new StringBuilder();
+        bool inQuotes = false;
+        for (int i = 0; i < csv.Length; i++)
+        {
+            char c = csv[i];
+            if (c == '"')
             {
-                DialogEntry => "💬",
-                AvatarEffectEntry => "👤",
-                VoiceEffectEntry => "🔊",
-                CameraEffectEntry => "📷",
-                ScreenFlashEntry => "⚡",
-                _ => "📄"
-            };
-
-            GUI.Label(iconRect, icon, EditorStyles.largeLabel);
-            string typeName = entry.GetType().Name.Replace("Entry", "");
-            GUI.Label(typeRect, typeName, EditorStyles.boldLabel);
-
-            if (entry is CameraEffectEntry cameraEntry)
+                if (inQuotes && i + 1 < csv.Length && csv[i + 1] == '"') { cell.Append('"'); i++; }
+                else inQuotes = !inQuotes;
+            }
+            else if (c == ',' && !inQuotes)
             {
-                Rect fieldRect = new Rect(rect.x + iconWidth + typeWidth + 5, rect.y + 5, 
-                    rect.width - iconWidth - typeWidth - 20f, 20);
-                
-                EditorGUI.BeginChangeCheck();
-                var newProfile = (CameraProfileSO)EditorGUI.ObjectField(
-                    fieldRect, 
-                    cameraEntry.Profile, 
-                    typeof(CameraProfileSO), 
-                    false
-                );
-                if (EditorGUI.EndChangeCheck())
+                row.Add(cell.ToString().Trim());
+                cell.Clear();
+            }
+            else if ((c == '\n' || c == '\r') && !inQuotes)
+            {
+                if (c == '\r' && i + 1 < csv.Length && csv[i + 1] == '\n') i++;
+                row.Add(cell.ToString().Trim());
+                cell.Clear();
+                rows.Add(row);
+                row = new List<string>();
+            }
+            else cell.Append(c);
+        }
+        if (cell.Length > 0 || row.Count > 0)
+        {
+            row.Add(cell.ToString().Trim());
+            rows.Add(row);
+        }
+        return rows;
+    }
+
+    private int FindIndex(List<string> headers, string name, int fallback)
+    {
+        int index = headers.FindIndex(x => string.Equals(x?.Trim(), name, StringComparison.OrdinalIgnoreCase));
+        return index >= 0 ? index : fallback;
+    }
+
+    private string GetCell(List<string> row, int index) => index >= 0 && index < row.Count ? row[index] : string.Empty;
+
+    private string GenerateDialogId(int number)
+    {
+        string prefix = string.IsNullOrWhiteSpace(_target.SequenceId) ? "dialog" : _target.SequenceId.Trim();
+        return $"{prefix}_{number:D3}";
+    }
+
+    private void RebuildRows()
+    {
+        RebuildAnchors();
+        _rows.Clear();
+        int index = 0;
+        while (index < _target.Entries.Count)
+        {
+            ISequenceEntry entry = _target.Entries[index];
+            if (_mergeDialogs && string.IsNullOrWhiteSpace(_search) && entry is DialogEntry)
+            {
+                int start = index;
+                int end = index;
+                while (end + 1 < _target.Entries.Count && _target.Entries[end + 1] is DialogEntry) end++;
+                int size = end - start + 1;
+                if (size >= 3)
                 {
-                    Undo.RecordObject(_target, "Change Camera Profile");
-                    cameraEntry.Profile = newProfile;
-                    EditorUtility.SetDirty(_target);
-                }
-            }
-            else
-            {
-                Rect contentRect = new Rect(rect.x + iconWidth + typeWidth + 5, rect.y + 5, 
-                    rect.width - iconWidth - typeWidth - 10, 20);
-                    
-                string content = entry switch
-                {
-                    DialogEntry d => $"{d.Speaker}: {(d.Content?.Length > 15 ? d.Content.Substring(0, 15) + "..." : d.Content)}",
-                    AvatarEffectEntry a => a.CharacterId,
-                    VoiceEffectEntry v => $"→ {v.TargetDialogId}",
-                    ScreenFlashEntry s => s.FlashType.ToString(),
-                    _ => ""
-                };
-                GUI.Label(contentRect, content, EditorStyles.miniLabel);
-            }
-        }
-
-        private void DrawCsvField()
-        {
-            EditorGUI.BeginChangeCheck();
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("CsvSource"));
-            
-            if (EditorGUI.EndChangeCheck() && _target.CsvSource != null)
-            {
-                string path = AssetDatabase.GetAssetPath(_target.CsvSource);
-                if (!path.Contains("/Resources/"))
-                {
-                    EditorUtility.DisplayDialog("警告", 
-                        "CSV 文件必须放在 Resources 目录下才能被打包。", "确定");
-                }
-            }
-
-            if (_target.CsvSource != null)
-            {
-                string path = AssetDatabase.GetAssetPath(_target.CsvSource);
-                if (!path.Contains("/Resources/"))
-                {
-                    EditorGUILayout.HelpBox("⚠ CSV 不在 Resources 目录下，Build 后将无法访问！", MessageType.Error);
-                }
-            }
-        }
-
-        private void BuildFromCsv()
-        {
-            if (_target.CsvSource == null) return;
-
-            string csvText = _target.CsvSource.text;
-            var newDialogs = ParseCsv(csvText);
-
-            if (newDialogs.Count == 0)
-            {
-                EditorUtility.DisplayDialog("构建失败", "CSV 解析结果为空", "确定");
-                return;
-            }
-
-            // 保留 EffectEntry，重建 DialogEntry
-            var effects = _target.Entries.OfType<EffectEntry>().ToList();
-            var oldDialogs = _target.Entries.OfType<DialogEntry>().ToDictionary(d => d.Id);
-
-            var newEntries = new List<ISequenceEntry>();
-            int effectIdx = 0, dialogIdx = 0;
-
-            while (effectIdx < effects.Count || dialogIdx < newDialogs.Count)
-            {
-                if (dialogIdx < newDialogs.Count)
-                {
-                    var newDialog = newDialogs[dialogIdx];
-                    if (oldDialogs.TryGetValue(newDialog.Id, out var oldDialog))
-                    {
-                        oldDialog.Speaker = newDialog.Speaker;
-                        oldDialog.Content = newDialog.Content;
-                        newEntries.Add(oldDialog);
-                    }
-                    else
-                    {
-                        newEntries.Add(newDialog);
-                    }
-                    dialogIdx++;
-                }
-
-                if (effectIdx < effects.Count && effectIdx < newDialogs.Count)
-                {
-                    newEntries.Add(effects[effectIdx]);
-                    effectIdx++;
-                }
-            }
-
-            while (effectIdx < effects.Count)
-            {
-                newEntries.Add(effects[effectIdx]);
-                effectIdx++;
-            }
-
-            Undo.RecordObject(_target, "Build Dialog Sequence");
-            _target.Entries = newEntries;
-            EditorUtility.SetDirty(_target);
-
-            EditorUtility.DisplayDialog("构建完成", $"生成了 {newDialogs.Count} 条对话，保留了 {effects.Count} 条演出", "确定");
-        }
-
-        private List<DialogEntry> ParseCsv(string csvText)
-        {
-            var entries = new List<DialogEntry>();
-            var lines = csvText.Split('\n');
-            if (lines.Length < 2) return entries;
-
-            var headers = ParseCsvLine(lines[0]);
-            int idIdx = headers.FindIndex(h => h.ToLower() == "id");
-            int speakerIdx = headers.FindIndex(h => h.ToLower() == "speaker");
-            int contentIdx = headers.FindIndex(h => h.ToLower() == "content");
-
-            if (idIdx < 0) idIdx = 0;
-            if (speakerIdx < 0) speakerIdx = 1;
-            if (contentIdx < 0) contentIdx = 2;
-
-            int lineNum = 1;
-            foreach (var line in lines.Skip(1))
-            {
-                if (string.IsNullOrWhiteSpace(line)) continue;
-                var values = ParseCsvLine(line);
-                if (values.Count == 0) continue;
-
-                string id = idIdx < values.Count ? values[idIdx] : $"{_target.SequenceId}_{lineNum:D3}";
-                if (int.TryParse(id, out int numId))
-                    id = $"{_target.SequenceId}_{numId:D3}";
-
-                entries.Add(new DialogEntry
-                {
-                    Id = id,
-                    Speaker = speakerIdx < values.Count ? values[speakerIdx] : "",
-                    Content = contentIdx < values.Count ? values[contentIdx] : ""
-                });
-                lineNum++;
-            }
-
-            return entries;
-        }
-
-        private List<string> ParseCsvLine(string line)
-        {
-            var result = new List<string>();
-            var sb = new StringBuilder();
-            bool inQuotes = false;
-
-            for (int i = 0; i < line.Length; i++)
-            {
-                char c = line[i];
-                if (c == '"')
-                {
-                    if (inQuotes && i + 1 < line.Length && line[i + 1] == '"')
-                    {
-                        sb.Append('"');
-                        i++;
-                    }
-                    else
-                    {
-                        inQuotes = !inQuotes;
-                    }
-                }
-                else if (c == ',' && !inQuotes)
-                {
-                    result.Add(sb.ToString().Trim());
-                    sb.Clear();
-                }
-                else
-                {
-                    sb.Append(c);
-                }
-            }
-            result.Add(sb.ToString().Trim());
-            return result;
-        }
-
-        private void AddEntryAt<T>(int index) where T : class, ISequenceEntry, new()
-        {
-            Undo.RecordObject(_target, "Add Entry");
-            
-            if (index < 0) index = 0;
-            if (index > _target.Entries.Count) index = _target.Entries.Count;
-            
-            _target.Entries.Insert(index, new T());
-            EditorUtility.SetDirty(_target);
-            
-            _entryList.index = index;
-            _needsRebuildDisplay = true;
-        }
-
-        private void DrawSelectedEntryDetails()
-        {
-            int selectedIndex = _entryList.index;
-            if (selectedIndex < 0 || selectedIndex >= _target.Entries.Count)
-                return;
-
-            var entry = _target.Entries[selectedIndex];
-            if (entry == null) return;
-
-            EditorGUILayout.Space(10);
-            EditorGUILayout.LabelField($"编辑: {entry.GetType().Name.Replace("Entry", "")} [{selectedIndex}]", EditorStyles.boldLabel);
-            
-            EditorGUI.BeginChangeCheck();
-
-            switch (entry)
-            {
-                case DialogEntry dialog:
-                    DrawDialogEntryEditor(dialog);
-                    break;
-                case CameraEffectEntry camera:
-                    DrawCameraEffectEntryEditor(camera);
-                    break;
-            }
-
-            if (EditorGUI.EndChangeCheck())
-            {
-                EditorUtility.SetDirty(_target);
-            }
-        }
-
-        private void DrawDialogEntryEditor(DialogEntry entry)
-        {
-            entry.Id = EditorGUILayout.TextField("ID", entry.Id);
-            entry.Speaker = EditorGUILayout.TextField("说话者", entry.Speaker);
-            EditorGUILayout.LabelField("内容");
-            entry.Content = EditorGUILayout.TextArea(entry.Content, GUILayout.MinHeight(60));
-        }
-
-        private void DrawCameraEffectEntryEditor(CameraEffectEntry entry)
-        {
-            EditorGUILayout.LabelField("相机效果配置", EditorStyles.boldLabel);
-            
-            EditorGUI.BeginDisabledGroup(true);
-            EditorGUILayout.ObjectField("引用的 Profile", entry.Profile, typeof(CameraProfileSO), false);
-            EditorGUI.EndDisabledGroup();
-            
-            EditorGUILayout.Space(5);
-            
-            if (entry.Profile != null)
-            {
-                EditorGUILayout.LabelField("配置预览:", EditorStyles.miniBoldLabel);
-                
-                EditorGUILayout.BeginVertical("box");
-                EditorGUILayout.LabelField($"Profile: {entry.Profile.name}", EditorStyles.boldLabel);
-                EditorGUILayout.Space(3);
-                
-                var keys = entry.Profile.GetAllKeys();
-                if (keys.Count > 0)
-                {
-                    EditorGUILayout.LabelField("包含效果:", EditorStyles.miniLabel);
-                    foreach (var key in keys)
-                    {
-                        if (entry.Profile.TryGetEffect(key, out var config))
-                        {
-                            EditorGUILayout.LabelField($"  • {key}: {config.EffectType} ({config.Duration}s)", EditorStyles.miniLabel);
-                        }
-                    }
+                    AddRow(new Row(start, RowKind.Normal, "起 对话", GetDialogPreview((DialogEntry)_target.Entries[start]), 20f));
+                    _rows.Add(new Row(-1, RowKind.Collapsed, string.Empty, string.Empty, 18f) { CollapsedCount = size - 2 });
+                    AddRow(new Row(end, RowKind.Normal, "止 对话", GetDialogPreview((DialogEntry)_target.Entries[end]), 20f));
                 }
                 else
                 {
-                    EditorGUILayout.HelpBox("此 Profile 尚未配置效果", MessageType.Info);
+                    for (int i = start; i <= end; i++) AddRow(MakeNormalRow(i, _target.Entries[i]));
                 }
-                EditorGUILayout.EndVertical();
+                index = end + 1;
+                continue;
             }
-            else
-            {
-                EditorGUILayout.HelpBox("未引用 Profile，请在列表中拖拽指定", MessageType.Warning);
-            }
+
+            AddRow((_compactEffects && string.IsNullOrWhiteSpace(_search) && entry is EffectEntry) ? MakeCompactRow(index, entry) : MakeNormalRow(index, entry));
+            index++;
         }
-        
-        private enum DisplayItemType { Normal, DialogHead, DialogTail, DialogCollapsed, CompactEffect }
-        
-        private class DisplayItem
+    }
+
+    private void AddRow(Row row)
+    {
+        if (row.Index >= 0 && !MatchesSearch(_target.Entries[row.Index])) return;
+        _rows.Add(row);
+    }
+
+    private Row MakeNormalRow(int index, ISequenceEntry entry) => new(index, RowKind.Normal, GetEntryTitle(entry), GetEntryPreview(entry), 20f);
+    private Row MakeCompactRow(int index, ISequenceEntry entry) => new(index, RowKind.CompactEffect, GetEntryTitle(entry), GetEntryPreview(entry), 18f);
+
+    private void RebuildAnchors()
+    {
+        _anchors.Clear();
+        var dialogOccurrences = new Dictionary<string, int>(StringComparer.Ordinal);
+        DialogEntry lastDialog = null;
+        int dialogCount = 0;
+        foreach (ISequenceEntry entry in _target.Entries)
         {
-            public DisplayItemType Type;
-            public ISequenceEntry Entry;
-            public int RealIndex;
-            public int CollapsedCount;
-            public float Height;
+            if (entry is DialogEntry dialog)
+            {
+                dialogCount++;
+                string signature = BuildDialogSignature(dialog.Speaker, dialog.Content);
+                dialogOccurrences.TryGetValue(signature, out int count);
+                dialogOccurrences[signature] = count + 1;
+                lastDialog = dialog;
+                continue;
+            }
+
+            if (entry is not EffectEntry effect) continue;
+            string anchorSignature = lastDialog == null ? string.Empty : BuildDialogSignature(lastDialog.Speaker, lastDialog.Content);
+            dialogOccurrences.TryGetValue(anchorSignature, out int occurrence);
+            _anchors[effect] = new DialogSequenceEffectAnchorRecord
+            {
+                EffectType = effect.GetType().Name,
+                EffectFingerprint = BuildEffectFingerprint(effect),
+                AnchorSpeaker = lastDialog?.Speaker ?? string.Empty,
+                AnchorContentPreview = Preview(lastDialog?.Content, 48),
+                AnchorSignature = anchorSignature,
+                AnchorOccurrence = lastDialog == null ? 0 : occurrence,
+                FallbackBucket = dialogCount
+            };
         }
+    }
+    private bool MatchesSearch(ISequenceEntry entry)
+    {
+        if (string.IsNullOrWhiteSpace(_search)) return true;
+        string haystack = entry switch
+        {
+            DialogEntry dialog => string.Join(" ", dialog.Id, dialog.Speaker, dialog.Content),
+            AvatarEffectEntry avatar => string.Join(" ", "Avatar", avatar.CharacterId, avatar.FadeIn, GetName(avatar.Avatar), GetAnchorText(avatar)),
+            VoiceEffectEntry voice => string.Join(" ", "Voice", voice.TargetDialogId, GetName(voice.VoiceClip), GetAnchorText(voice)),
+            CameraEffectEntry camera => string.Join(" ", "Camera", GetName(camera.Profile), GetAnchorText(camera)),
+            ScreenFlashEntry flash => string.Join(" ", "Flash", flash.FlashType, flash.Duration, GetAnchorText(flash)),
+            _ => string.Empty
+        };
+        return haystack.IndexOf(_search.Trim(), StringComparison.OrdinalIgnoreCase) >= 0;
+    }
+
+    private void SelectNextResult()
+    {
+        if (_rows.Count == 0) return;
+        int current = _rows.FindIndex(x => x.Index == _selectedIndex);
+        int next = current >= 0 ? (current + 1) % _rows.Count : 0;
+        _selectedIndex = _rows[next].Index;
+        Repaint();
+    }
+
+    private string GetEntryTitle(ISequenceEntry entry) => entry switch
+    {
+        DialogEntry => "对话",
+        AvatarEffectEntry => "头像",
+        VoiceEffectEntry => "语音",
+        CameraEffectEntry => "镜头",
+        ScreenFlashEntry => "闪屏",
+        _ => "未知"
+    };
+
+    private string GetEntryPreview(ISequenceEntry entry) => entry switch
+    {
+        DialogEntry dialog => GetDialogPreview(dialog),
+        AvatarEffectEntry avatar => $"{avatar.CharacterId} / {avatar.FadeIn}{GetAnchorSuffix(avatar)}",
+        VoiceEffectEntry voice => $"{GetName(voice.VoiceClip, "(无语音)")} -> {voice.TargetDialogId}{GetAnchorSuffix(voice)}",
+        CameraEffectEntry camera => $"{GetName(camera.Profile, "(未指定 Profile)")}{GetAnchorSuffix(camera)}",
+        ScreenFlashEntry flash => $"{flash.FlashType} / {flash.Duration:0.##}s{GetAnchorSuffix(flash)}",
+        _ => string.Empty
+    };
+
+    private string GetDialogPreview(DialogEntry dialog) => $"{dialog.Speaker}: {Preview(dialog.Content, 42)}";
+
+    private string GetAnchorSuffix(EffectEntry effect)
+    {
+        if (!_anchors.TryGetValue(effect, out DialogSequenceEffectAnchorRecord record) || string.IsNullOrWhiteSpace(record.AnchorSignature)) return string.Empty;
+        return $"  <- {record.AnchorSpeaker}{(record.AnchorOccurrence > 1 ? $" #{record.AnchorOccurrence}" : string.Empty)}";
+    }
+
+    private string GetAnchorText(EffectEntry effect)
+    {
+        return _anchors.TryGetValue(effect, out DialogSequenceEffectAnchorRecord record)
+            ? string.Join(" ", record.AnchorSpeaker, record.AnchorContentPreview, record.AnchorSignature, record.AnchorOccurrence)
+            : string.Empty;
+    }
+
+    private string Preview(string text, int max)
+    {
+        if (string.IsNullOrEmpty(text)) return "(空)";
+        return text.Length <= max ? text : text.Substring(0, max) + "...";
+    }
+
+    private string EnsureSequenceMetaId()
+    {
+        string assetPath = AssetDatabase.GetAssetPath(_target);
+        string normalized = assetPath.Replace('\\', '/');
+        int marker = normalized.IndexOf("/Resources/", StringComparison.OrdinalIgnoreCase);
+        if (marker < 0) return null;
+
+        string guid = AssetDatabase.AssetPathToGUID(assetPath);
+        string resourcePath = Path.ChangeExtension(normalized[(marker + "/Resources/".Length)..], null);
+        string id = $"dialog-sequence:{guid}";
+
+        MetaLib.Reload();
+        MetaLib.MetaEntry meta = MetaLib.GetMetaByPath(resourcePath);
+        if (meta == null || meta.EffectiveID != id)
+        {
+            if (meta != null) MetaLib.Unregister(meta.EffectiveID);
+            MetaLib.Register(id, new MetaLib.MetaEntry
+            {
+                ID = id,
+                PackID = id,
+                Kind = MetaLib.EntryKind.ResourceObject,
+                Storage = MetaLib.StorageType.Resources,
+                ResourcePath = resourcePath,
+                ObjectType = typeof(DialogSequenceSO).FullName,
+                DisplayName = _target.name,
+                Description = _target.Description,
+                CustomFields = new Dictionary<string, string> { ["AssetPath"] = assetPath, ["AssetGuid"] = guid }
+            });
+            MetaLib.Save();
+            MetaLib.Reload();
+        }
+
+        return id;
+    }
+
+    private DialogSequenceAnchorMeta LoadOrCreateAnchorMeta()
+    {
+        string guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(_target));
+        EnsureFolder("Assets/Scripts/Dialog/Editor");
+        EnsureFolder(AnchorMetaRoot);
+        string path = $"{AnchorMetaRoot}/{guid}.asset";
+        DialogSequenceAnchorMeta meta = AssetDatabase.LoadAssetAtPath<DialogSequenceAnchorMeta>(path);
+        if (meta == null)
+        {
+            meta = CreateInstance<DialogSequenceAnchorMeta>();
+            AssetDatabase.CreateAsset(meta, path);
+            AssetDatabase.SaveAssets();
+        }
+        meta.SequenceMetaId = _sequenceMetaId;
+        meta.SequenceAssetGuid = guid;
+        EditorUtility.SetDirty(meta);
+        return meta;
+    }
+    private void EnsureFolder(string path)
+    {
+        if (AssetDatabase.IsValidFolder(path)) return;
+        string parent = Path.GetDirectoryName(path)?.Replace('\\', '/');
+        if (!string.IsNullOrEmpty(parent) && !AssetDatabase.IsValidFolder(parent)) EnsureFolder(parent);
+        AssetDatabase.CreateFolder(parent, Path.GetFileName(path));
+    }
+
+    private void SaveAnchorMeta()
+    {
+        if (_anchorMeta == null) return;
+        _anchorMeta.SequenceMetaId = _sequenceMetaId;
+        _anchorMeta.SequenceAssetGuid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(_target));
+        _anchorMeta.Records = BuildAnchorRecords();
+        EditorUtility.SetDirty(_anchorMeta);
+        AssetDatabase.SaveAssets();
+    }
+
+    private List<DialogSequenceEffectAnchorRecord> BuildAnchorRecords()
+    {
+        var records = new List<DialogSequenceEffectAnchorRecord>();
+        var dialogOccurrences = new Dictionary<string, int>(StringComparer.Ordinal);
+        var effectOccurrences = new Dictionary<string, int>(StringComparer.Ordinal);
+        DialogEntry lastDialog = null;
+        int dialogCount = 0;
+        int effectOrder = 0;
+
+        foreach (ISequenceEntry entry in _target.Entries)
+        {
+            if (entry is DialogEntry dialog)
+            {
+                dialogCount++;
+                string signature = BuildDialogSignature(dialog.Speaker, dialog.Content);
+                dialogOccurrences.TryGetValue(signature, out int count);
+                dialogOccurrences[signature] = count + 1;
+                lastDialog = dialog;
+                continue;
+            }
+
+            if (entry is not EffectEntry effect) continue;
+            string type = effect.GetType().Name;
+            string fingerprint = BuildEffectFingerprint(effect);
+            string key = type + "|" + fingerprint;
+            effectOccurrences.TryGetValue(key, out int count2);
+            int occurrence = count2 + 1;
+            effectOccurrences[key] = occurrence;
+            string anchorSignature = lastDialog == null ? string.Empty : BuildDialogSignature(lastDialog.Speaker, lastDialog.Content);
+            dialogOccurrences.TryGetValue(anchorSignature, out int anchorOccurrence);
+
+            records.Add(new DialogSequenceEffectAnchorRecord
+            {
+                EffectType = type,
+                EffectFingerprint = fingerprint,
+                FingerprintOccurrence = occurrence,
+                AnchorSpeaker = lastDialog?.Speaker ?? string.Empty,
+                AnchorContentPreview = Preview(lastDialog?.Content, 48),
+                AnchorSignature = anchorSignature,
+                AnchorOccurrence = lastDialog == null ? 0 : anchorOccurrence,
+                FallbackBucket = dialogCount,
+                OriginalOrder = effectOrder
+            });
+            effectOrder++;
+        }
+
+        return records;
+    }
+
+    private Dictionary<string, List<int>> BuildDialogOccurrenceLookup(List<DialogEntry> dialogs)
+    {
+        var map = new Dictionary<string, List<int>>(StringComparer.Ordinal);
+        for (int i = 0; i < dialogs.Count; i++)
+        {
+            string signature = BuildDialogSignature(dialogs[i].Speaker, dialogs[i].Content);
+            if (!map.TryGetValue(signature, out List<int> list))
+            {
+                list = new List<int>();
+                map.Add(signature, list);
+            }
+            list.Add(i);
+        }
+        return map;
+    }
+
+    private bool MatchesAnchor(DialogSequenceEffectAnchorRecord record, DialogEntry dialog, Dictionary<string, List<int>> lookup, int dialogIndex)
+    {
+        if (record == null || string.IsNullOrWhiteSpace(record.AnchorSignature)) return false;
+        string signature = BuildDialogSignature(dialog.Speaker, dialog.Content);
+        if (signature != record.AnchorSignature || !lookup.TryGetValue(signature, out List<int> list) || list.Count == 0) return false;
+        return record.AnchorOccurrence > 0 && record.AnchorOccurrence <= list.Count ? list[record.AnchorOccurrence - 1] == dialogIndex : list[0] == dialogIndex;
+    }
+
+    private string BuildDialogSignature(string speaker, string content) => $"{NormalizeText(speaker)}|{NormalizeText(content)}";
+
+    private string NormalizeText(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+        var sb = new StringBuilder();
+        bool whitespace = false;
+        foreach (char c in text.Trim())
+        {
+            if (char.IsWhiteSpace(c))
+            {
+                if (!whitespace)
+                {
+                    sb.Append(' ');
+                    whitespace = true;
+                }
+                continue;
+            }
+            sb.Append(char.ToLowerInvariant(c));
+            whitespace = false;
+        }
+        return sb.ToString();
+    }
+
+    private string BuildEffectFingerprint(EffectEntry effect) => effect switch
+    {
+        AvatarEffectEntry avatar => $"avatar|{avatar.CharacterId}|{GetGuid(avatar.Avatar)}|{avatar.FadeIn}",
+        VoiceEffectEntry voice => $"voice|{voice.TargetDialogId}|{GetGuid(voice.VoiceClip)}",
+        CameraEffectEntry camera => $"camera|{GetGuid(camera.Profile)}",
+        ScreenFlashEntry flash => $"flash|{flash.FlashType}|{flash.Duration:0.###}",
+        _ => effect.GetType().Name
+    };
+
+    private string GetGuid(UnityEngine.Object asset)
+    {
+        if (!asset) return string.Empty;
+        string path = AssetDatabase.GetAssetPath(asset);
+        return string.IsNullOrWhiteSpace(path) ? string.Empty : AssetDatabase.AssetPathToGUID(path);
+    }
+
+    private string GetName(UnityEngine.Object asset, string fallback = "") => asset ? asset.name : fallback;
+
+    private void MarkDirty()
+    {
+        EditorUtility.SetDirty(_target);
+        RebuildRows();
+        SaveAnchorMeta();
+    }
+
+    private sealed class EffectPlacement
+    {
+        public EffectEntry Effect;
+        public DialogSequenceEffectAnchorRecord Record;
+        public int FallbackBucket;
+        public int Order;
+        public bool HasAnchor => Record != null && !string.IsNullOrWhiteSpace(Record.AnchorSignature);
+    }
+
+    private enum RowKind { Normal, CompactEffect, Collapsed }
+
+    private sealed class Row
+    {
+        public Row(int index, RowKind kind, string title, string preview, float height)
+        {
+            Index = index;
+            Kind = kind;
+            Title = title;
+            Preview = preview;
+            Height = height;
+        }
+
+        public int Index;
+        public RowKind Kind;
+        public string Title;
+        public string Preview;
+        public float Height;
+        public int CollapsedCount;
     }
 }
 #endif
