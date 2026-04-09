@@ -162,14 +162,14 @@ namespace GAL
         void OnShowPanel(object data)
         {
             Debug.Log("[DialogPanel]正在打开台词面板");
-            FadeIn();
+            Show();
         }
         
         void OnHidePanel(object data)
         {
             CancelAutoAdvance();
             Debug.Log("[DialogPanel]正在关闭台词面板");
-            FadeOut();
+            Hide();
         }
         
         void OnClickAdvance(PointerEventData eventData)

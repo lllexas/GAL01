@@ -1,5 +1,7 @@
 using UnityEngine;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using GAL;
 
     /// <summary>
@@ -10,18 +12,29 @@ using GAL;
     /// 结构相同（发包-等待-回调），实现因地制宜
     /// 
     /// 前端完全解耦：不引用任何 NekoGraph 类型
+    /// 
+    /// 【仲裁机制】
+    /// - 同一时刻只有一个 Sequence 在播放
+    /// - 新请求进入 FIFO 队列，当前 Sequence 结束后自动消费
+    /// - 帧隔离：Sequence 完成回调后延迟一帧再启动下一个，避免时序冲突
     /// </summary>
     public class DialogPlayer : SingletonMono<DialogPlayer>
     {
-        private Coroutine _playingCoroutine;
-        private System.Action _onSequenceComplete;
-        private int _currentIndex;
+        private Coroutine _player;                              // 当前播放协程
+        private readonly Queue<Request> _queue = new();         // 等待队列
+        private int _currentIndex;                              // 当前 Entry 索引
+        
+        private class Request
+        {
+            public DialogSequenceSO Sequence;
+            public Action OnComplete;
+        }
         
         /// <summary>
         /// VFSHandler 调用入口 - 第一层：直接调用
         /// 前端只接收 sequence 和 onComplete 回调，不碰任何 NekoGraph 类型
         /// </summary>
-        public bool TryPlay(DialogSequenceSO sequence, System.Action onComplete)
+        public bool TryPlay(DialogSequenceSO sequence, Action onComplete)
         {
             if (sequence == null)
             {
@@ -29,21 +42,37 @@ using GAL;
                 return false;
             }
 
-            this.StartPlay(sequence, onComplete);
+            var request = new Request { Sequence = sequence, OnComplete = onComplete };
+
+            if (_player == null)
+                _player = StartCoroutine(Play(request));
+            else
+                _queue.Enqueue(request);
+
             return true; // 已接管，后端挂起等待回调
         }
         
-        void StartPlay(DialogSequenceSO sequence, System.Action onComplete)
-        {
-            if (_playingCoroutine != null)
-                StopCoroutine(_playingCoroutine);
-            
-            _onSequenceComplete = onComplete;
-            _playingCoroutine = StartCoroutine(PlaySequence(sequence));
-        }
-        
         /// <summary>
-        /// 第二层：解包为 RoutedRequest，逐条发事件+委托
+        /// 播放协程 - 仲裁入口
+        /// 负责单个 Request 的播放，结束后自动消费队列
+        /// </summary>
+        IEnumerator Play(Request request)
+        {
+            yield return PlaySequence(request.Sequence);
+
+            request.OnComplete?.Invoke();
+
+            // 帧隔离：延迟一帧，确保当前帧的所有动画/事件处理完毕
+            yield return null;
+
+            // 消费队列或清空引用
+            _player = _queue.Count > 0 
+                ? StartCoroutine(Play(_queue.Dequeue())) 
+                : null;
+        }
+
+        /// <summary>
+        /// 第三层：解包为 RoutedRequest，逐条发事件+委托
         /// </summary>
         IEnumerator PlaySequence(DialogSequenceSO sequence)
         {
@@ -57,7 +86,7 @@ using GAL;
                 if (entry == null) continue;
                 
                 bool stepComplete = false;
-                System.Action onStepComplete = () => stepComplete = true;
+                Action onStepComplete = () => stepComplete = true;
                 
                 switch (entry)
                 {
@@ -93,14 +122,11 @@ using GAL;
             
             // 兜底回收 GAL 面板
             GALFrontend.Instance?.HideAllGalPanels();
-            
-            _playingCoroutine = null;
-            _onSequenceComplete?.Invoke(); // 回调后端 (VFSHandler) 
         }
         
         // ========== 各类型条目：发事件带委托 ==========
         
-        IEnumerator PlayDialog(DialogEntry dialog, System.Action onStepComplete)
+        IEnumerator PlayDialog(DialogEntry dialog, Action onStepComplete)
         {
             bool lineComplete = false;
             
@@ -118,7 +144,7 @@ using GAL;
             onStepComplete?.Invoke();
         }
         
-        IEnumerator PlayAvatar(AvatarEffectEntry avatar, System.Action onStepComplete)
+        IEnumerator PlayAvatar(AvatarEffectEntry avatar, Action onStepComplete)
         {
             Debug.Log($"[Avatar]正在变换角色槽位：{avatar.SlotIndex}");
             if (avatar == null)
@@ -165,7 +191,7 @@ using GAL;
             yield return new WaitForSeconds(0.1f);
         }
 
-        IEnumerator PlayBackground(BackgroundEffectEntry background, System.Action onStepComplete)
+        IEnumerator PlayBackground(BackgroundEffectEntry background, Action onStepComplete)
         {
             if (background?.Preset == null)
             {
@@ -191,7 +217,7 @@ using GAL;
             yield return null;
         }
         
-        IEnumerator PlayFlash(ScreenFlashEntry flash, System.Action onStepComplete)
+        IEnumerator PlayFlash(ScreenFlashEntry flash, Action onStepComplete)
         {
             var transType = flash.FlashType == ScreenFlashType.White
                 ? TransitionType.FlashWhite
@@ -211,7 +237,7 @@ using GAL;
             yield return new WaitForSeconds(flash.Duration);
         }
         
-        IEnumerator PlayVoice(VoiceEffectEntry voice, System.Action onStepComplete)
+        IEnumerator PlayVoice(VoiceEffectEntry voice, Action onStepComplete)
         {
             // TODO: 接入音频系统
             Debug.Log($"[DialogPlayer] 播放语音: {voice?.VoiceClip?.name}");
@@ -219,7 +245,7 @@ using GAL;
             onStepComplete?.Invoke();
         }
         
-        IEnumerator PlayCamera(CameraEffectEntry camera, System.Action onStepComplete)
+        IEnumerator PlayCamera(CameraEffectEntry camera, Action onStepComplete)
         {
             if (CameraDirector.Instance == null)
             {
