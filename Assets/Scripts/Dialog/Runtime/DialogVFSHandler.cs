@@ -1,53 +1,43 @@
 using GAL01.Dialog.Data;
 using NekoGraph;
-using Newtonsoft.Json;
 using UnityEngine;
 
 namespace GAL01.Dialog.Runtime
 {
     /// <summary>
     /// Dialog VFS 处理器 - 处理 .dialog 后缀的 VFS 文件节点
+    /// 
+    /// 继电器模式：
+    /// 1. 校验并解析 DialogSequenceSO
+    /// 2. 将序列交给 DialogPlayer（MonoBehaviour 协程）播放
+    /// 3. 返回 Nope，由 DialogPlayer 播放完成后自行 InjectSignal 恢复信号流
     /// </summary>
     public static class DialogVFSHandler
     {
         [EXEHandler(".dialog", typeof(DialogSequenceSO))]
-        public static void Handle(
+        public static HandleResult Handle(
             VFSResolvedContent content,
             SignalContext context,
             BasePackData pack,
             GraphRunner runner,
             string packInstanceID)
         {
-            // 1. 获取 DialogSequenceSO
+            // 1. 获取并校验 DialogSequenceSO
             var sequence = content.GetUnityObject<DialogSequenceSO>();
-            
-            // 2. SO 有效性校验
             if (sequence == null)
             {
                 Debug.LogError("[DialogVFSHandler] 校验失败：DialogSequenceSO 为 null");
-                return;
-            }
-            
-            if (string.IsNullOrEmpty(sequence.SequenceId))
-            {
-                Debug.LogWarning($"[DialogVFSHandler] 校验警告：DialogSequenceSO '{sequence.name}' 的 SequenceId 为空");
+                return HandleResult.Error;
             }
             
             if (sequence.Entries == null)
             {
-                Debug.LogError($"[DialogVFSHandler] 校验失败：DialogSequenceSO '{sequence.name}' 的 Entries 为 null");
-                return;
+                Debug.LogError($"[DialogVFSHandler] 校验失败：'{sequence.name}' 的 Entries 为 null");
+                return HandleResult.Error;
             }
             
-            if (sequence.Entries.Count == 0)
-            {
-                Debug.LogWarning($"[DialogVFSHandler] 校验警告：DialogSequenceSO '{sequence.name}' 的 Entries 为空列表");
-            }
-            
-            // 3. 输出 SO 的所有 entry
-            Debug.Log($"[DialogVFSHandler] ===== DialogSequenceSO: {sequence.name} (ID: {sequence.SequenceId}) =====");
-            Debug.Log($"[DialogVFSHandler] Entries 数量: {sequence.Entries.Count}");
-            
+            // 2. 输出所有 Entry（调试用）
+            Debug.Log($"[DialogVFSHandler] 播放序列: {sequence.name} (ID: {sequence.SequenceId}, Entries: {sequence.Entries.Count})");
             for (int i = 0; i < sequence.Entries.Count; i++)
             {
                 var entry = sequence.Entries[i];
@@ -56,34 +46,31 @@ namespace GAL01.Dialog.Runtime
                     Debug.LogWarning($"[DialogVFSHandler] Entry[{i}] 为 null");
                     continue;
                 }
-                
                 switch (entry)
                 {
                     case DialogEntry dialog:
-                        Debug.Log($"[DialogVFSHandler] Entry[{i}] [Dialog] ID={dialog.Id}, Speaker={dialog.Speaker}, Content={dialog.Content}");
+                        Debug.Log($"[{i}] Dialog: {dialog.Speaker} - {dialog.Content}");
                         break;
                     case AvatarEffectEntry avatar:
-                        Debug.Log($"[DialogVFSHandler] Entry[{i}] [AvatarEffect] CharacterId={avatar.CharacterId}, FadeIn={avatar.FadeIn}");
+                        Debug.Log($"[{i}] Avatar: {avatar.CharacterId}");
                         break;
                     case VoiceEffectEntry voice:
-                        Debug.Log($"[DialogVFSHandler] Entry[{i}] [VoiceEffect] TargetDialogId={voice.TargetDialogId}, VoiceClip={voice.VoiceClip?.name ?? "null"}");
+                        Debug.Log($"[{i}] Voice: {voice.VoiceClip?.name ?? "null"}");
                         break;
                     case CameraEffectEntry camera:
-                        Debug.Log($"[DialogVFSHandler] Entry[{i}] [CameraEffect] Profile={camera.Profile?.name ?? "null"}");
+                        Debug.Log($"[{i}] Camera: {camera.Profile?.name ?? "null"}");
                         break;
                     case ScreenFlashEntry flash:
-                        Debug.Log($"[DialogVFSHandler] Entry[{i}] [ScreenFlash] Type={flash.FlashType}, Duration={flash.Duration}");
-                        break;
-                    default:
-                        Debug.Log($"[DialogVFSHandler] Entry[{i}] [Unknown] Type={entry.GetType().Name}");
+                        Debug.Log($"[{i}] Flash: {flash.FlashType} ({flash.Duration}s)");
                         break;
                 }
             }
             
-            Debug.Log($"[DialogVFSHandler] ===== End of {sequence.name} =====");
+            // 3. 继电器模式：交给 DialogPlayer，返回 Nope
+            // DialogPlayer 完成后会调用 runner.InjectSignal 恢复信号流
+            DialogPlayer.Play(sequence, context, pack, runner, packInstanceID);
             
-            // 4. 将 SO 传递给下游
-            context.Args = sequence;
+            return HandleResult.Nope;
         }
     }
 }
