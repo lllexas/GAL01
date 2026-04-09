@@ -1,0 +1,412 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff0c252c6e61fad428ed281d56231394, type: 3}
+  m_Name: Test1DialogSequence
+  m_EditorClassIdentifier: 
+  CsvSource: {fileID: 4900000, guid: 108852fcaaab9ab41b5aff07f00c2bd1, type: 3}
+  SequenceId: 
+  Description: 
+  Entries:
+  - rid: 8300286042720960596
+  - rid: 8300286042720960607
+  - rid: 8300286042720960553
+  - rid: 8300286042720960597
+  - rid: 8300286042720960608
+  - rid: 8300286042720960610
+  - rid: 8300286042720960609
+  - rid: 8300286042720960554
+  - rid: 8300286042720960598
+  - rid: 8300286042720960555
+  - rid: 8300286042720960556
+  - rid: 8300286042720960602
+  - rid: 8300286042720960557
+  - rid: 8300286042720960603
+  - rid: 8300286042720960562
+  - rid: 8300286042720960604
+  - rid: 8300286042720960599
+  - rid: 8300286042720960563
+  - rid: 8300286042720960564
+  - rid: 8300286042720960600
+  - rid: 8300286042720960565
+  - rid: 8300286042720960566
+  - rid: 8300286042720960601
+  - rid: 8300286042720960605
+  - rid: 8300286042720960567
+  - rid: 8300286042720960568
+  - rid: 8300286042720960569
+  - rid: 8300286042720960570
+  - rid: 8300286042720960606
+  - rid: 8300286042720960571
+  - rid: 8300286042720960572
+  - rid: 8300286042720960573
+  - rid: 8300286042720960574
+  - rid: 8300286042720960575
+  - rid: 8300286042720960576
+  - rid: 8300286042720960577
+  - rid: 8300286042720960578
+  - rid: 8300286042720960579
+  - rid: 8300286042720960580
+  - rid: 8300286042720960581
+  - rid: 8300286042720960582
+  - rid: 8300286042720960583
+  - rid: 8300286042720960584
+  - rid: 8300286042720960585
+  - rid: 8300286042720960586
+  - rid: 8300286042720960587
+  - rid: 8300286042720960588
+  - rid: 8300286042720960589
+  - rid: 8300286042720960590
+  - rid: 8300286042720960591
+  - rid: 8300286042720960592
+  - rid: 8300286042720960593
+  - rid: 8300286042720960611
+  references:
+    version: 2
+    RefIds:
+    - rid: 8300286042720960553
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_001
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u706F\u5149\u6D4B\u8BD5\uFF0C\u4E09\u3001\u4E8C\u3001\u4E00\u2014\u2014ACTION\u3002"
+    - rid: 8300286042720960554
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_002
+        Speaker: "\u4E3B\u89D2"
+        Content: "\u7B49\u7B49\uFF0C\u6211\u8FD8\u6CA1\u62FF\u5230\u5267\u672C\u3002"
+    - rid: 8300286042720960555
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_003
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u5267\u672C\uFF1F\u8FD9\u5C31\u662F\u6D4B\u8BD5\u573A\uFF0C\u53F0\u8BCD\u968F\u4FBF\u7F16\u3002"
+    - rid: 8300286042720960556
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_004
+        Speaker: "\u4E3B\u89D2"
+        Content: "\u968F\u4FBF\u7F16\uFF1F\u90A3\u6211\u8BF4\u4EC0\u4E48\uFF1F"
+    - rid: 8300286042720960557
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_005
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u8BF4\u4F60\u73B0\u5728\u7684\u611F\u89C9\u3002\u6BD4\u5982...\u5BF9\u573A\u5730\u7684\u7B2C\u4E00\u5370\u8C61\u3002"
+    - rid: 8300286042720960562
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_006
+        Speaker: "\u4E3B\u89D2"
+        Content: "\u8FD9\u5730\u65B9\u770B\u8D77\u6765\u50CF\u4E2A\u5E9F\u5F03\u6D3B\u52A8\u5BA4\u3002"
+    - rid: 8300286042720960563
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_007
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u5F88\u597D\uFF0C\u4FDD\u6301\u8FD9\u4E2A\u60C5\u7EEA\u3002\u73B0\u5728\u52A0\u70B9\u56F0\u60D1\u3002"
+    - rid: 8300286042720960564
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_008
+        Speaker: "\u4E3B\u89D2"
+        Content: "\u56F0\u60D1\uFF1F\u4E3A\u4EC0\u4E48\u6211\u8981\u56F0\u60D1\uFF1F"
+    - rid: 8300286042720960565
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_009
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u56E0\u4E3A\u4F60\u4E0D\u77E5\u9053\u8FD9\u573A\u620F\u7684\u76EE\u7684\u662F\u4EC0\u4E48\u3002"
+    - rid: 8300286042720960566
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_010
+        Speaker: "\u4E3B\u89D2"
+        Content: "\u786E\u5B9E\u4E0D\u77E5\u9053\u3002\u6240\u4EE5\u76EE\u7684\u662F\u4EC0\u4E48\uFF1F"
+    - rid: 8300286042720960567
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_011
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u6D4B\u8BD5\u6253\u5B57\u673A\u6548\u679C\u3002\u770B\uFF0C\u8FD9\u53E5\u8BDD\u521A\u663E\u793A\u5B8C\u3002"
+    - rid: 8300286042720960568
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_012
+        Speaker: "\u4E3B\u89D2"
+        Content: "\u6253\u5B57\u673A\u6548\u679C\uFF1F\u4F60\u662F\u8BF4\u8FD9\u79CD\u9010\u5B57\u51FA\u73B0\u7684\u611F\u89C9\uFF1F"
+    - rid: 8300286042720960569
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_013
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u5BF9\uFF0C\u73B0\u5728\u8BD5\u7740\u6253\u65AD\u5B83\u3002\u70B9\u51FB\u5C4F\u5E55\u3002"
+    - rid: 8300286042720960570
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_014
+        Speaker: "\u4E3B\u89D2"
+        Content: "\u600E\u4E48\u6253\u65AD\uFF1F\u6211\u8FD8\u6CA1\u8BF4\u5B8C\u2014\u2014"
+    - rid: 8300286042720960571
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_015
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u4F60\u770B\uFF0C\u53EF\u4EE5\u8DF3\u8FC7\u3002\u8FD9\u5C31\u662F\u4EA4\u4E92\u6D4B\u8BD5\u3002"
+    - rid: 8300286042720960572
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_016
+        Speaker: "\u4E3B\u89D2"
+        Content: "\u539F\u6765\u6211\u53EA\u662F\u4E2A\u6D4B\u8BD5\u7528\u4F8B..."
+    - rid: 8300286042720960573
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_017
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u522B\u4F24\u5FC3\uFF0C\u6BCF\u4E2A\u4F1F\u5927\u7684\u6F14\u51FA\u90FD\u4ECE\u6D4B\u8BD5\u5F00\u59CB\u3002"
+    - rid: 8300286042720960574
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_018
+        Speaker: "\u4E3B\u89D2"
+        Content: "\u90A3\u6211\u4EEC\u6D4B\u8BD5\u5230\u7B2C\u51E0\u884C\u4E86\uFF1F"
+    - rid: 8300286042720960575
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_019
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u76EE\u524D\u662F\u7B2C18\u884C\uFF0CCSV\u8BFB\u53D6\u6B63\u5E38\u3002"
+    - rid: 8300286042720960576
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_020
+        Speaker: "\u4E3B\u89D2"
+        Content: "CSV\uFF1F\u6211\u8FD8\u4EE5\u4E3A\u662F\u6B63\u7ECF\u5267\u672C\u3002"
+    - rid: 8300286042720960577
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_021
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u6B63\u7ECF\u5267\u672C\u5728\u9694\u58C1\u6587\u4EF6\u5939\uFF0C\u8FD9\u91CC\u662FDEBUG\u573A\u3002"
+    - rid: 8300286042720960578
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_022
+        Speaker: "\u4E3B\u89D2"
+        Content: "\u6240\u4EE5\u8FD9\u4E9B\u5BF9\u8BDD\u90FD\u662F\u5E9F\u8BDD\uFF1F"
+    - rid: 8300286042720960579
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_023
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u6709\u610F\u4E49\u7684\u5E9F\u8BDD\u3002\u6211\u4EEC\u5728\u9A8C\u8BC1\u7CFB\u7EDF\u7A33\u5B9A\u6027\u3002"
+    - rid: 8300286042720960580
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_024
+        Speaker: "\u4E3B\u89D2"
+        Content: "\u7CFB\u7EDF\u7A33\u5B9A\u4E86\u7136\u540E\u5462\uFF1F"
+    - rid: 8300286042720960581
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_025
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u7136\u540E\u6362\u4E0A\u771F\u5267\u672C\uFF0C\u4F60\u5C31\u53D8\u6210\u60B2\u5267\u82F1\u96C4\u4E86\u3002"
+    - rid: 8300286042720960582
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_026
+        Speaker: "\u4E3B\u89D2"
+        Content: "\u60B2\u5267\uFF1F\u80FD\u4E0D\u80FD\u6362\u4E2A\u8F7B\u677E\u70B9\u7684\u89D2\u8272\uFF1F"
+    - rid: 8300286042720960583
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_027
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u6D4B\u8BD5\u9636\u6BB5\u6CA1\u6709\u9009\u62E9\u6743\u3002\u7EE7\u7EED\u5FF5\u4F60\u7684\u5E9F\u8BDD\u3002"
+    - rid: 8300286042720960584
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_028
+        Speaker: "\u4E3B\u89D2"
+        Content: "\u597D\u5427...\u8FD9\u573A\u5730\u706F\u5149\u6709\u70B9\u6697\u3002"
+    - rid: 8300286042720960585
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_029
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u6536\u5230\uFF0C\u5DF2\u8BB0\u5F55\u3002\u4E0B\u4E00\u6761\uFF1A\u6D4B\u8BD5\u81EA\u52A8\u64AD\u653E\u3002"
+    - rid: 8300286042720960586
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_030
+        Speaker: "\u4E3B\u89D2"
+        Content: "\u81EA\u52A8\u64AD\u653E\u662F\u4EC0\u4E48\uFF1F"
+    - rid: 8300286042720960587
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_031
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u4F60\u4E0D\u7528\u70B9\u51FB\uFF0C\u5BF9\u8BDD\u81EA\u5DF1\u5F80\u4E0B\u6EDA\u3002"
+    - rid: 8300286042720960588
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_032
+        Speaker: "\u4E3B\u89D2"
+        Content: "\u90A3\u6211\u662F\u4E0D\u662F\u53EF\u4EE5\u559D\u8336\u4E86\uFF1F"
+    - rid: 8300286042720960589
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_033
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u53EF\u4EE5\uFF0C\u4F46\u53EA\u80FD\u559D\u865A\u62DF\u8336\u3002\u6211\u4EEC\u8FD8\u6CA1\u505A\u9053\u5177\u7CFB\u7EDF\u3002"
+    - rid: 8300286042720960590
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_034
+        Speaker: "\u4E3B\u89D2"
+        Content: "...\u8FD9\u9879\u76EE\u5230\u5E95\u6709\u591A\u7A77\uFF1F"
+    - rid: 8300286042720960591
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_035
+        Speaker: "\u5BFC\u6F14"
+        Content: "\u7A77\u5230\u8FDE\u8FD9\u4E2ACSV\u90FD\u662F\u6211\u624B\u5199\u7684\u3002"
+    - rid: 8300286042720960592
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_036
+        Speaker: "\u4E3B\u89D2"
+        Content: "\u4F60\u624B\u5199\u4E8637\u884C\u5E9F\u8BDD\uFF1F"
+    - rid: 8300286042720960593
+      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Id: intro_037
+        Speaker: "\u5BFC\u6F14"
+        Content: "39\u884C\uFF0C\u8FD8\u6709\u4E24\u884C\u662F\u8868\u5934\u3002\u6D4B\u8BD5\u7ED3\u675F\uFF0C\u6536\u5DE5\u3002"
+    - rid: 8300286042720960596
+      type: {class: BackgroundEffectEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Preset: {fileID: 11400000, guid: 83483cbdc195d804abd6b308754b7dd8, type: 2}
+    - rid: 8300286042720960597
+      type: {class: CameraEffectEntry, ns: , asm: Assembly-CSharp}
+      data:
+        EffectKey: "\u62C9\u8FD1\u805A\u7126"
+        UseDurationOverride: 0
+        DurationOverride: 0.5
+        UseIntensityOverride: 0
+        IntensityOverride: 1
+    - rid: 8300286042720960598
+      type: {class: CameraEffectEntry, ns: , asm: Assembly-CSharp}
+      data:
+        EffectKey: "\u62C9\u8FDC\u6062\u590D"
+        UseDurationOverride: 0
+        DurationOverride: 0.5
+        UseIntensityOverride: 0
+        IntensityOverride: 1
+    - rid: 8300286042720960599
+      type: {class: CameraEffectEntry, ns: , asm: Assembly-CSharp}
+      data:
+        EffectKey: "\u5DE6\u79FB"
+        UseDurationOverride: 0
+        DurationOverride: 0.5
+        UseIntensityOverride: 0
+        IntensityOverride: 1
+    - rid: 8300286042720960600
+      type: {class: CameraEffectEntry, ns: , asm: Assembly-CSharp}
+      data:
+        EffectKey: "\u53F3\u79FB"
+        UseDurationOverride: 0
+        DurationOverride: 0.5
+        UseIntensityOverride: 0
+        IntensityOverride: 1
+    - rid: 8300286042720960601
+      type: {class: CameraEffectEntry, ns: , asm: Assembly-CSharp}
+      data:
+        EffectKey: "\u95EA\u767D"
+        UseDurationOverride: 0
+        DurationOverride: 0.5
+        UseIntensityOverride: 0
+        IntensityOverride: 1
+    - rid: 8300286042720960602
+      type: {class: CameraEffectEntry, ns: , asm: Assembly-CSharp}
+      data:
+        EffectKey: "\u95EA\u9ED1"
+        UseDurationOverride: 0
+        DurationOverride: 0.5
+        UseIntensityOverride: 0
+        IntensityOverride: 1
+    - rid: 8300286042720960603
+      type: {class: CameraEffectEntry, ns: , asm: Assembly-CSharp}
+      data:
+        EffectKey: "\u8F7B\u5FAE\u9707\u52A8"
+        UseDurationOverride: 0
+        DurationOverride: 0.5
+        UseIntensityOverride: 0
+        IntensityOverride: 1
+    - rid: 8300286042720960604
+      type: {class: CameraEffectEntry, ns: , asm: Assembly-CSharp}
+      data:
+        EffectKey: "\u5F3A\u70C8\u9707\u52A8"
+        UseDurationOverride: 0
+        DurationOverride: 0.5
+        UseIntensityOverride: 0
+        IntensityOverride: 1
+    - rid: 8300286042720960605
+      type: {class: BackgroundEffectEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Preset: {fileID: 11400000, guid: e5165563bfc8be243878750bb2d11c22, type: 2}
+    - rid: 8300286042720960606
+      type: {class: BackgroundEffectEntry, ns: , asm: Assembly-CSharp}
+      data:
+        Preset: {fileID: 11400000, guid: 83483cbdc195d804abd6b308754b7dd8, type: 2}
+    - rid: 8300286042720960607
+      type: {class: AvatarEffectEntry, ns: , asm: Assembly-CSharp}
+      data:
+        SlotIndex: 2
+        Action: 0
+        Profile: {fileID: 11400000, guid: d87c53217f557c24e87ab56762795b22, type: 2}
+        EmotionKey: normal
+        FromLeft: 1
+    - rid: 8300286042720960608
+      type: {class: AvatarEffectEntry, ns: , asm: Assembly-CSharp}
+      data:
+        SlotIndex: 2
+        Action: 1
+        Profile: {fileID: 0}
+        EmotionKey: 
+        FromLeft: 1
+    - rid: 8300286042720960609
+      type: {class: AvatarEffectEntry, ns: , asm: Assembly-CSharp}
+      data:
+        SlotIndex: 1
+        Action: 0
+        Profile: {fileID: 11400000, guid: 37cdd9c9f56de5a4caaaf17adbfaee04, type: 2}
+        EmotionKey: normal
+        FromLeft: 1
+    - rid: 8300286042720960610
+      type: {class: AvatarEffectEntry, ns: , asm: Assembly-CSharp}
+      data:
+        SlotIndex: 3
+        Action: 0
+        Profile: {fileID: 11400000, guid: d87c53217f557c24e87ab56762795b22, type: 2}
+        EmotionKey: normal
+        FromLeft: 1
+    - rid: 8300286042720960611
+      type: {class: AvatarEffectEntry, ns: , asm: Assembly-CSharp}
+      data:
+        SlotIndex: 0
+        Action: 0
+        Profile: {fileID: 0}
+        EmotionKey: 
+        FromLeft: 1

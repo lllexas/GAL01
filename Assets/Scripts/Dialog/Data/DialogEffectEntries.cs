@@ -14,9 +14,27 @@ public abstract class EffectEntry : ISequenceEntry { }
 [Serializable]
 public class AvatarEffectEntry : EffectEntry
 {
-    public string CharacterId;
-    public Sprite Avatar;
-    public FadeType FadeIn = FadeType.Instant;
+    [Range(0, 4)]
+    public int SlotIndex;
+    public AvatarAction Action = AvatarAction.Show;
+    public CharacterRenderProfileSO Profile;
+    public string EmotionKey;
+    public bool FromLeft = true;
+}
+
+public enum AvatarAction
+{
+    Show,
+    Hide
+}
+
+/// <summary>
+/// 背景切换效果
+/// </summary>
+[Serializable]
+public class BackgroundEffectEntry : EffectEntry
+{
+    public BackgroundPresetSO Preset;
 }
 
 /// <summary>
@@ -36,7 +54,11 @@ public class VoiceEffectEntry : EffectEntry
 [Serializable]
 public class CameraEffectEntry : EffectEntry
 {
-    public CameraProfileSO Profile;
+    public string EffectKey;
+    public bool UseDurationOverride;
+    public float DurationOverride = 0.5f;
+    public bool UseIntensityOverride;
+    public float IntensityOverride = 1f;
 }
 
 /// <summary>
@@ -51,4 +73,3 @@ public class ScreenFlashEntry : EffectEntry
 
 public enum FadeType { Instant, FadeIn, FadeInWithScale }
 public enum ScreenFlashType { White, Black, Red }
-

@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2223d3936216304c90868de6daac457, type: 3}
+  m_Name: CameraEffectLibrary
+  m_EditorClassIdentifier: 
+  Effects:
+  - Key: "\u8F7B\u5FAE\u9707\u52A8"
+    Config:
+      EffectType: 2
+      Duration: 0.2
+      Intensity: 0.2
+      EaseType: 0
+      Vibrato: 5
+      Randomness: 0.3
+      TargetOffset: {x: 0, y: 0, z: 0}
+      TargetZoom: 0
+  - Key: "\u5F3A\u70C8\u9707\u52A8"
+    Config:
+      EffectType: 2
+      Duration: 0.45
+      Intensity: 0.8
+      EaseType: 0
+      Vibrato: 18
+      Randomness: 0.9
+      TargetOffset: {x: 0, y: 0, z: 0}
+      TargetZoom: 0
+  - Key: "\u62C9\u8FD1\u805A\u7126"
+    Config:
+      EffectType: 5
+      Duration: 0.6
+      Intensity: 0
+      EaseType: 10
+      Vibrato: 0
+      Randomness: 0
+      TargetOffset: {x: 0, y: 0, z: 100}
+      TargetZoom: 1.2
+  - Key: "\u62C9\u8FDC\u6062\u590D"
+    Config:
+      EffectType: 5
+      Duration: 0.6
+      Intensity: 0
+      EaseType: 10
+      Vibrato: 0
+      Randomness: 0
+      TargetOffset: {x: 0, y: 0, z: -100}
+      TargetZoom: 1
+  - Key: "\u5DE6\u79FB"
+    Config:
+      EffectType: 5
+      Duration: 0.5
+      Intensity: 0
+      EaseType: 10
+      Vibrato: 0
+      Randomness: 0
+      TargetOffset: {x: -80, y: 0, z: 0}
+      TargetZoom: 1
+  - Key: "\u53F3\u79FB"
+    Config:
+      EffectType: 5
+      Duration: 0.5
+      Intensity: 0
+      EaseType: 10
+      Vibrato: 0
+      Randomness: 0
+      TargetOffset: {x: 80, y: 0, z: 0}
+      TargetZoom: 1
+  - Key: "\u95EA\u767D"
+    Config:
+      EffectType: 6
+      Duration: 0.15
+      Intensity: 0
+      EaseType: 10
+      Vibrato: 0
+      Randomness: 0
+      TargetOffset: {x: 0, y: 0, z: 0}
+      TargetZoom: 1
+  - Key: "\u95EA\u9ED1"
+    Config:
+      EffectType: 7
+      Duration: 0.15
+      Intensity: 0
+      EaseType: 10
+      Vibrato: 0
+      Randomness: 0
+      TargetOffset: {x: 0, y: 0, z: 0}
+      TargetZoom: 1

@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 629538c412c03ae4a99b444be8928310, type: 3}
+  m_Name: c252ef04202d25e418de89718a98bd8b
+  m_EditorClassIdentifier: 
+  SequenceMetaId: dialog-sequence:c252ef04202d25e418de89718a98bd8b
+  SequenceAssetGuid: c252ef04202d25e418de89718a98bd8b
+  Records:
+  - EffectType: AvatarEffectEntry
+    EffectFingerprint: avatar|Show|2|50c69ec89c9b6514b99ddeee276756db|normal|True
+    FingerprintOccurrence: 1
+    AnchorSpeaker: 
+    AnchorContentPreview: "(\u7A7A)"
+    AnchorSignature: 
+    AnchorOccurrence: 0
+    FallbackBucket: 0
+    OriginalOrder: 0
+  - EffectType: BackgroundEffectEntry
+    EffectFingerprint: background|83483cbdc195d804abd6b308754b7dd8
+    FingerprintOccurrence: 1
+    AnchorSpeaker: 
+    AnchorContentPreview: "(\u7A7A)"
+    AnchorSignature: 
+    AnchorOccurrence: 0
+    FallbackBucket: 0
+    OriginalOrder: 1

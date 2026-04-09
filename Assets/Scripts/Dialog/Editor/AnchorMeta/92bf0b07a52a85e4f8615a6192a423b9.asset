@@ -1,0 +1,161 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 629538c412c03ae4a99b444be8928310, type: 3}
+  m_Name: 92bf0b07a52a85e4f8615a6192a423b9
+  m_EditorClassIdentifier: 
+  SequenceMetaId: dialog-sequence:92bf0b07a52a85e4f8615a6192a423b9
+  SequenceAssetGuid: 
+  Records:
+  - EffectType: BackgroundEffectEntry
+    EffectFingerprint: background|83483cbdc195d804abd6b308754b7dd8
+    FingerprintOccurrence: 1
+    AnchorSpeaker: 
+    AnchorContentPreview: "(\u7A7A)"
+    AnchorSignature: 
+    AnchorOccurrence: 0
+    FallbackBucket: 0
+    OriginalOrder: 0
+  - EffectType: AvatarEffectEntry
+    EffectFingerprint: avatar|Show|2|d87c53217f557c24e87ab56762795b22|normal|True
+    FingerprintOccurrence: 1
+    AnchorSpeaker: 
+    AnchorContentPreview: "(\u7A7A)"
+    AnchorSignature: 
+    AnchorOccurrence: 0
+    FallbackBucket: 0
+    OriginalOrder: 1
+  - EffectType: CameraEffectEntry
+    EffectFingerprint: "camera|\u62C9\u8FD1\u805A\u7126|False|0.5|False|1"
+    FingerprintOccurrence: 1
+    AnchorSpeaker: "\u5BFC\u6F14"
+    AnchorContentPreview: "\u706F\u5149\u6D4B\u8BD5\uFF0C\u4E09\u3001\u4E8C\u3001\u4E00\u2014\u2014ACTION\u3002"
+    AnchorSignature: "\u5BFC\u6F14|\u706F\u5149\u6D4B\u8BD5\uFF0C\u4E09\u3001\u4E8C\u3001\u4E00\u2014\u2014action\u3002"
+    AnchorOccurrence: 1
+    FallbackBucket: 1
+    OriginalOrder: 2
+  - EffectType: AvatarEffectEntry
+    EffectFingerprint: avatar|Hide|2|||True
+    FingerprintOccurrence: 1
+    AnchorSpeaker: "\u5BFC\u6F14"
+    AnchorContentPreview: "\u706F\u5149\u6D4B\u8BD5\uFF0C\u4E09\u3001\u4E8C\u3001\u4E00\u2014\u2014ACTION\u3002"
+    AnchorSignature: "\u5BFC\u6F14|\u706F\u5149\u6D4B\u8BD5\uFF0C\u4E09\u3001\u4E8C\u3001\u4E00\u2014\u2014action\u3002"
+    AnchorOccurrence: 1
+    FallbackBucket: 1
+    OriginalOrder: 3
+  - EffectType: AvatarEffectEntry
+    EffectFingerprint: avatar|Show|3|d87c53217f557c24e87ab56762795b22|normal|True
+    FingerprintOccurrence: 1
+    AnchorSpeaker: "\u5BFC\u6F14"
+    AnchorContentPreview: "\u706F\u5149\u6D4B\u8BD5\uFF0C\u4E09\u3001\u4E8C\u3001\u4E00\u2014\u2014ACTION\u3002"
+    AnchorSignature: "\u5BFC\u6F14|\u706F\u5149\u6D4B\u8BD5\uFF0C\u4E09\u3001\u4E8C\u3001\u4E00\u2014\u2014action\u3002"
+    AnchorOccurrence: 1
+    FallbackBucket: 1
+    OriginalOrder: 4
+  - EffectType: AvatarEffectEntry
+    EffectFingerprint: avatar|Show|1|37cdd9c9f56de5a4caaaf17adbfaee04|normal|True
+    FingerprintOccurrence: 1
+    AnchorSpeaker: "\u5BFC\u6F14"
+    AnchorContentPreview: "\u706F\u5149\u6D4B\u8BD5\uFF0C\u4E09\u3001\u4E8C\u3001\u4E00\u2014\u2014ACTION\u3002"
+    AnchorSignature: "\u5BFC\u6F14|\u706F\u5149\u6D4B\u8BD5\uFF0C\u4E09\u3001\u4E8C\u3001\u4E00\u2014\u2014action\u3002"
+    AnchorOccurrence: 1
+    FallbackBucket: 1
+    OriginalOrder: 5
+  - EffectType: CameraEffectEntry
+    EffectFingerprint: "camera|\u62C9\u8FDC\u6062\u590D|False|0.5|False|1"
+    FingerprintOccurrence: 1
+    AnchorSpeaker: "\u4E3B\u89D2"
+    AnchorContentPreview: "\u7B49\u7B49\uFF0C\u6211\u8FD8\u6CA1\u62FF\u5230\u5267\u672C\u3002"
+    AnchorSignature: "\u4E3B\u89D2|\u7B49\u7B49\uFF0C\u6211\u8FD8\u6CA1\u62FF\u5230\u5267\u672C\u3002"
+    AnchorOccurrence: 1
+    FallbackBucket: 2
+    OriginalOrder: 6
+  - EffectType: CameraEffectEntry
+    EffectFingerprint: "camera|\u95EA\u9ED1|False|0.5|False|1"
+    FingerprintOccurrence: 1
+    AnchorSpeaker: "\u4E3B\u89D2"
+    AnchorContentPreview: "\u968F\u4FBF\u7F16\uFF1F\u90A3\u6211\u8BF4\u4EC0\u4E48\uFF1F"
+    AnchorSignature: "\u4E3B\u89D2|\u968F\u4FBF\u7F16\uFF1F\u90A3\u6211\u8BF4\u4EC0\u4E48\uFF1F"
+    AnchorOccurrence: 1
+    FallbackBucket: 4
+    OriginalOrder: 7
+  - EffectType: CameraEffectEntry
+    EffectFingerprint: "camera|\u8F7B\u5FAE\u9707\u52A8|False|0.5|False|1"
+    FingerprintOccurrence: 1
+    AnchorSpeaker: "\u5BFC\u6F14"
+    AnchorContentPreview: "\u8BF4\u4F60\u73B0\u5728\u7684\u611F\u89C9\u3002\u6BD4\u5982...\u5BF9\u573A\u5730\u7684\u7B2C\u4E00\u5370\u8C61\u3002"
+    AnchorSignature: "\u5BFC\u6F14|\u8BF4\u4F60\u73B0\u5728\u7684\u611F\u89C9\u3002\u6BD4\u5982...\u5BF9\u573A\u5730\u7684\u7B2C\u4E00\u5370\u8C61\u3002"
+    AnchorOccurrence: 1
+    FallbackBucket: 5
+    OriginalOrder: 8
+  - EffectType: CameraEffectEntry
+    EffectFingerprint: "camera|\u5F3A\u70C8\u9707\u52A8|False|0.5|False|1"
+    FingerprintOccurrence: 1
+    AnchorSpeaker: "\u4E3B\u89D2"
+    AnchorContentPreview: "\u8FD9\u5730\u65B9\u770B\u8D77\u6765\u50CF\u4E2A\u5E9F\u5F03\u6D3B\u52A8\u5BA4\u3002"
+    AnchorSignature: "\u4E3B\u89D2|\u8FD9\u5730\u65B9\u770B\u8D77\u6765\u50CF\u4E2A\u5E9F\u5F03\u6D3B\u52A8\u5BA4\u3002"
+    AnchorOccurrence: 1
+    FallbackBucket: 6
+    OriginalOrder: 9
+  - EffectType: CameraEffectEntry
+    EffectFingerprint: "camera|\u5DE6\u79FB|False|0.5|False|1"
+    FingerprintOccurrence: 1
+    AnchorSpeaker: "\u4E3B\u89D2"
+    AnchorContentPreview: "\u8FD9\u5730\u65B9\u770B\u8D77\u6765\u50CF\u4E2A\u5E9F\u5F03\u6D3B\u52A8\u5BA4\u3002"
+    AnchorSignature: "\u4E3B\u89D2|\u8FD9\u5730\u65B9\u770B\u8D77\u6765\u50CF\u4E2A\u5E9F\u5F03\u6D3B\u52A8\u5BA4\u3002"
+    AnchorOccurrence: 1
+    FallbackBucket: 6
+    OriginalOrder: 10
+  - EffectType: CameraEffectEntry
+    EffectFingerprint: "camera|\u53F3\u79FB|False|0.5|False|1"
+    FingerprintOccurrence: 1
+    AnchorSpeaker: "\u4E3B\u89D2"
+    AnchorContentPreview: "\u56F0\u60D1\uFF1F\u4E3A\u4EC0\u4E48\u6211\u8981\u56F0\u60D1\uFF1F"
+    AnchorSignature: "\u4E3B\u89D2|\u56F0\u60D1\uFF1F\u4E3A\u4EC0\u4E48\u6211\u8981\u56F0\u60D1\uFF1F"
+    AnchorOccurrence: 1
+    FallbackBucket: 8
+    OriginalOrder: 11
+  - EffectType: CameraEffectEntry
+    EffectFingerprint: "camera|\u95EA\u767D|False|0.5|False|1"
+    FingerprintOccurrence: 1
+    AnchorSpeaker: "\u4E3B\u89D2"
+    AnchorContentPreview: "\u786E\u5B9E\u4E0D\u77E5\u9053\u3002\u6240\u4EE5\u76EE\u7684\u662F\u4EC0\u4E48\uFF1F"
+    AnchorSignature: "\u4E3B\u89D2|\u786E\u5B9E\u4E0D\u77E5\u9053\u3002\u6240\u4EE5\u76EE\u7684\u662F\u4EC0\u4E48\uFF1F"
+    AnchorOccurrence: 1
+    FallbackBucket: 10
+    OriginalOrder: 12
+  - EffectType: BackgroundEffectEntry
+    EffectFingerprint: background|e5165563bfc8be243878750bb2d11c22
+    FingerprintOccurrence: 1
+    AnchorSpeaker: "\u4E3B\u89D2"
+    AnchorContentPreview: "\u786E\u5B9E\u4E0D\u77E5\u9053\u3002\u6240\u4EE5\u76EE\u7684\u662F\u4EC0\u4E48\uFF1F"
+    AnchorSignature: "\u4E3B\u89D2|\u786E\u5B9E\u4E0D\u77E5\u9053\u3002\u6240\u4EE5\u76EE\u7684\u662F\u4EC0\u4E48\uFF1F"
+    AnchorOccurrence: 1
+    FallbackBucket: 10
+    OriginalOrder: 13
+  - EffectType: BackgroundEffectEntry
+    EffectFingerprint: background|83483cbdc195d804abd6b308754b7dd8
+    FingerprintOccurrence: 2
+    AnchorSpeaker: "\u4E3B\u89D2"
+    AnchorContentPreview: "\u600E\u4E48\u6253\u65AD\uFF1F\u6211\u8FD8\u6CA1\u8BF4\u5B8C\u2014\u2014"
+    AnchorSignature: "\u4E3B\u89D2|\u600E\u4E48\u6253\u65AD\uFF1F\u6211\u8FD8\u6CA1\u8BF4\u5B8C\u2014\u2014"
+    AnchorOccurrence: 1
+    FallbackBucket: 14
+    OriginalOrder: 14
+  - EffectType: AvatarEffectEntry
+    EffectFingerprint: avatar|Show|0|||True
+    FingerprintOccurrence: 1
+    AnchorSpeaker: "\u5BFC\u6F14"
+    AnchorContentPreview: "39\u884C\uFF0C\u8FD8\u6709\u4E24\u884C\u662F\u8868\u5934\u3002\u6D4B\u8BD5\u7ED3\u675F\uFF0C\u6536\u5DE5\u3002"
+    AnchorSignature: "\u5BFC\u6F14|39\u884C\uFF0C\u8FD8\u6709\u4E24\u884C\u662F\u8868\u5934\u3002\u6D4B\u8BD5\u7ED3\u675F\uFF0C\u6536\u5DE5\u3002"
+    AnchorOccurrence: 1
+    FallbackBucket: 37
+    OriginalOrder: 15

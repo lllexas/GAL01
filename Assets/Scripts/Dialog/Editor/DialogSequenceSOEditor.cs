@@ -104,6 +104,7 @@ public class DialogSequenceSOEditor : UnityEditor.Editor
         EditorGUILayout.BeginHorizontal();
         if (GUILayout.Button("新增对话")) AddEntry<DialogEntry>();
         if (GUILayout.Button("新增头像")) AddEntry<AvatarEffectEntry>();
+        if (GUILayout.Button("新增背景")) AddEntry<BackgroundEffectEntry>();
         if (GUILayout.Button("新增语音")) AddEntry<VoiceEffectEntry>();
         if (GUILayout.Button("新增镜头")) AddEntry<CameraEffectEntry>();
         if (GUILayout.Button("新增闪屏")) AddEntry<ScreenFlashEntry>();
@@ -194,6 +195,7 @@ public class DialogSequenceSOEditor : UnityEditor.Editor
         {
             case DialogEntry dialog: EditDialog(dialog); break;
             case AvatarEffectEntry avatar: EditAvatar(avatar); break;
+            case BackgroundEffectEntry background: EditBackground(background); break;
             case VoiceEffectEntry voice: EditVoice(voice); break;
             case CameraEffectEntry camera: EditCamera(camera); break;
             case ScreenFlashEntry flash: EditFlash(flash); break;
@@ -217,15 +219,77 @@ public class DialogSequenceSOEditor : UnityEditor.Editor
 
     private void EditAvatar(AvatarEffectEntry entry)
     {
-        string characterId = EditorGUILayout.TextField("角色 ID", entry.CharacterId);
-        Sprite avatar = (Sprite)EditorGUILayout.ObjectField("头像", entry.Avatar, typeof(Sprite), false);
-        FadeType fade = (FadeType)EditorGUILayout.EnumPopup("淡入方式", entry.FadeIn);
-        if (characterId != entry.CharacterId || avatar != entry.Avatar || fade != entry.FadeIn)
+        int slotIndex = EditorGUILayout.IntSlider("槽位", entry.SlotIndex, 0, 4);
+        AvatarAction action = (AvatarAction)EditorGUILayout.EnumPopup("动作", entry.Action);
+        CharacterRenderProfileSO profile = (CharacterRenderProfileSO)EditorGUILayout.ObjectField("角色预设", entry.Profile, typeof(CharacterRenderProfileSO), false);
+        string emotionKey = DrawAvatarEmotionKeyField(profile, entry.EmotionKey);
+        bool fromLeft = entry.FromLeft;
+        if (action == AvatarAction.Show)
+            fromLeft = EditorGUILayout.Toggle("从左侧入场", entry.FromLeft);
+
+        if (slotIndex != entry.SlotIndex
+            || action != entry.Action
+            || profile != entry.Profile
+            || emotionKey != entry.EmotionKey
+            || fromLeft != entry.FromLeft)
         {
             Undo.RecordObject(_target, "Edit Avatar Effect");
-            entry.CharacterId = characterId;
-            entry.Avatar = avatar;
-            entry.FadeIn = fade;
+            entry.SlotIndex = slotIndex;
+            entry.Action = action;
+            entry.Profile = profile;
+            entry.EmotionKey = emotionKey;
+            entry.FromLeft = fromLeft;
+            MarkDirty();
+        }
+        DrawAnchorInfo(entry);
+    }
+
+    private string DrawAvatarEmotionKeyField(CharacterRenderProfileSO profile, string currentKey)
+    {
+        if (profile == null)
+        {
+            EditorGUILayout.HelpBox("请先选择角色预设，再选择情绪 Key。", MessageType.Info);
+            return string.Empty;
+        }
+
+        List<string> keys = GetAvatarEmotionKeys(profile);
+        if (keys.Count <= 1)
+        {
+            EditorGUILayout.HelpBox("该角色预设未配置可用的 EmotionKey。", MessageType.Warning);
+            return string.Empty;
+        }
+
+        int index = keys.IndexOf(currentKey);
+        if (index < 0) index = 0;
+        int nextIndex = EditorGUILayout.Popup("情绪 Key", index, keys.ToArray());
+        return nextIndex == 0 ? string.Empty : keys[nextIndex];
+    }
+
+    private List<string> GetAvatarEmotionKeys(CharacterRenderProfileSO profile)
+    {
+        var keys = new List<string> { "(未选择)" };
+        if (profile?.Avatars == null) return keys;
+
+        foreach (CharacterAvatarPreset preset in profile.Avatars)
+        {
+            if (preset == null || string.IsNullOrWhiteSpace(preset.EmotionKey))
+                continue;
+
+            string key = preset.EmotionKey.Trim();
+            if (!keys.Contains(key))
+                keys.Add(key);
+        }
+
+        return keys;
+    }
+
+    private void EditBackground(BackgroundEffectEntry entry)
+    {
+        BackgroundPresetSO preset = (BackgroundPresetSO)EditorGUILayout.ObjectField("背景预设", entry.Preset, typeof(BackgroundPresetSO), false);
+        if (preset != entry.Preset)
+        {
+            Undo.RecordObject(_target, "Edit Background Effect");
+            entry.Preset = preset;
             MarkDirty();
         }
         DrawAnchorInfo(entry);
@@ -247,14 +311,82 @@ public class DialogSequenceSOEditor : UnityEditor.Editor
 
     private void EditCamera(CameraEffectEntry entry)
     {
-        CameraProfileSO profile = (CameraProfileSO)EditorGUILayout.ObjectField("Profile", entry.Profile, typeof(CameraProfileSO), false);
-        if (profile != entry.Profile)
+        List<string> cameraKeys = GetAllCameraEffectKeys();
+        string effectKey = DrawCameraEffectKeyField(entry.EffectKey, cameraKeys);
+        bool useDurationOverride = EditorGUILayout.Toggle("覆盖时长", entry.UseDurationOverride);
+        float durationOverride = entry.DurationOverride;
+        if (useDurationOverride)
+            durationOverride = Mathf.Max(0f, EditorGUILayout.FloatField("时长", entry.DurationOverride));
+
+        bool useIntensityOverride = EditorGUILayout.Toggle("覆盖强度", entry.UseIntensityOverride);
+        float intensityOverride = entry.IntensityOverride;
+        if (useIntensityOverride)
+            intensityOverride = EditorGUILayout.FloatField("强度", entry.IntensityOverride);
+
+        if (effectKey != entry.EffectKey
+            || useDurationOverride != entry.UseDurationOverride
+            || !Mathf.Approximately(durationOverride, entry.DurationOverride)
+            || useIntensityOverride != entry.UseIntensityOverride
+            || !Mathf.Approximately(intensityOverride, entry.IntensityOverride))
         {
             Undo.RecordObject(_target, "Edit Camera Effect");
-            entry.Profile = profile;
+            entry.EffectKey = effectKey;
+            entry.UseDurationOverride = useDurationOverride;
+            entry.DurationOverride = durationOverride;
+            entry.UseIntensityOverride = useIntensityOverride;
+            entry.IntensityOverride = intensityOverride;
             MarkDirty();
         }
         DrawAnchorInfo(entry);
+    }
+
+    private string DrawCameraEffectKeyField(string currentKey, List<string> cameraKeys)
+    {
+        if (cameraKeys.Count == 0)
+            return EditorGUILayout.TextField("效果 Key", currentKey);
+
+        bool isCustom = !string.IsNullOrWhiteSpace(currentKey) && !cameraKeys.Contains(currentKey);
+        int customIndex = cameraKeys.Count - 1;
+        int selectedIndex = string.IsNullOrWhiteSpace(currentKey)
+            ? 0
+            : isCustom ? customIndex : cameraKeys.IndexOf(currentKey);
+        if (selectedIndex < 0) selectedIndex = 0;
+
+        EditorGUILayout.BeginHorizontal();
+        int nextIndex = EditorGUILayout.Popup("效果 Key", selectedIndex, cameraKeys.ToArray());
+        bool customSelected = nextIndex == customIndex;
+        EditorGUILayout.EndHorizontal();
+
+        if (nextIndex == 0)
+            return string.Empty;
+
+        if (!customSelected)
+            return cameraKeys[nextIndex];
+
+        return EditorGUILayout.TextField("自定义 Key", currentKey);
+    }
+
+    private List<string> GetAllCameraEffectKeys()
+    {
+        var keys = new List<string>();
+        string[] guids = AssetDatabase.FindAssets("t:CameraEffectLibrarySO");
+        foreach (string guid in guids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            CameraEffectLibrarySO library = AssetDatabase.LoadAssetAtPath<CameraEffectLibrarySO>(path);
+            if (library == null) continue;
+
+            foreach (string key in library.GetAllKeys())
+            {
+                if (string.IsNullOrWhiteSpace(key) || keys.Contains(key)) continue;
+                keys.Add(key);
+            }
+        }
+
+        keys.Sort(StringComparer.Ordinal);
+        keys.Insert(0, "(未选择)");
+        keys.Add("(自定义...)");
+        return keys;
     }
 
     private void EditFlash(ScreenFlashEntry entry)
@@ -572,9 +704,10 @@ public class DialogSequenceSOEditor : UnityEditor.Editor
         string haystack = entry switch
         {
             DialogEntry dialog => string.Join(" ", dialog.Id, dialog.Speaker, dialog.Content),
-            AvatarEffectEntry avatar => string.Join(" ", "Avatar", avatar.CharacterId, avatar.FadeIn, GetName(avatar.Avatar), GetAnchorText(avatar)),
+            AvatarEffectEntry avatar => string.Join(" ", "Avatar", avatar.Action, avatar.SlotIndex, avatar.Profile?.CharacterId, GetName(avatar.Profile), avatar.EmotionKey, GetAnchorText(avatar)),
+            BackgroundEffectEntry background => string.Join(" ", "Background", background.Preset?.Id, GetName(background.Preset), GetAnchorText(background)),
             VoiceEffectEntry voice => string.Join(" ", "Voice", voice.TargetDialogId, GetName(voice.VoiceClip), GetAnchorText(voice)),
-            CameraEffectEntry camera => string.Join(" ", "Camera", GetName(camera.Profile), GetAnchorText(camera)),
+            CameraEffectEntry camera => string.Join(" ", "Camera", camera.EffectKey, camera.UseDurationOverride ? camera.DurationOverride.ToString() : string.Empty, camera.UseIntensityOverride ? camera.IntensityOverride.ToString() : string.Empty, GetAnchorText(camera)),
             ScreenFlashEntry flash => string.Join(" ", "Flash", flash.FlashType, flash.Duration, GetAnchorText(flash)),
             _ => string.Empty
         };
@@ -594,6 +727,7 @@ public class DialogSequenceSOEditor : UnityEditor.Editor
     {
         DialogEntry => "对话",
         AvatarEffectEntry => "头像",
+        BackgroundEffectEntry => "背景",
         VoiceEffectEntry => "语音",
         CameraEffectEntry => "镜头",
         ScreenFlashEntry => "闪屏",
@@ -603,12 +737,26 @@ public class DialogSequenceSOEditor : UnityEditor.Editor
     private string GetEntryPreview(ISequenceEntry entry) => entry switch
     {
         DialogEntry dialog => GetDialogPreview(dialog),
-        AvatarEffectEntry avatar => $"{avatar.CharacterId} / {avatar.FadeIn}{GetAnchorSuffix(avatar)}",
+        AvatarEffectEntry avatar => $"{avatar.Action} S{avatar.SlotIndex} / {GetName(avatar.Profile, "(未指定角色预设)")} / {avatar.EmotionKey}{GetAnchorSuffix(avatar)}",
+        BackgroundEffectEntry background => $"{GetName(background.Preset, "(未指定背景预设)")}{GetAnchorSuffix(background)}",
         VoiceEffectEntry voice => $"{GetName(voice.VoiceClip, "(无语音)")} -> {voice.TargetDialogId}{GetAnchorSuffix(voice)}",
-        CameraEffectEntry camera => $"{GetName(camera.Profile, "(未指定 Profile)")}{GetAnchorSuffix(camera)}",
+        CameraEffectEntry camera => $"{camera.EffectKey}{GetCameraOverrideSuffix(camera)}{GetAnchorSuffix(camera)}",
         ScreenFlashEntry flash => $"{flash.FlashType} / {flash.Duration:0.##}s{GetAnchorSuffix(flash)}",
         _ => string.Empty
     };
+
+    private string GetCameraOverrideSuffix(CameraEffectEntry camera)
+    {
+        string content = string.Empty;
+        if (camera.UseDurationOverride)
+            content += $"dur={camera.DurationOverride:0.##}";
+        if (camera.UseIntensityOverride)
+            content += string.IsNullOrEmpty(content)
+                ? $"int={camera.IntensityOverride:0.##}"
+                : $" int={camera.IntensityOverride:0.##}";
+
+        return string.IsNullOrEmpty(content) ? string.Empty : $" ({content})";
+    }
 
     private string GetDialogPreview(DialogEntry dialog) => $"{dialog.Speaker}: {Preview(dialog.Content, 42)}";
 
@@ -801,9 +949,10 @@ public class DialogSequenceSOEditor : UnityEditor.Editor
 
     private string BuildEffectFingerprint(EffectEntry effect) => effect switch
     {
-        AvatarEffectEntry avatar => $"avatar|{avatar.CharacterId}|{GetGuid(avatar.Avatar)}|{avatar.FadeIn}",
+        AvatarEffectEntry avatar => $"avatar|{avatar.Action}|{avatar.SlotIndex}|{GetGuid(avatar.Profile)}|{avatar.EmotionKey}|{avatar.FromLeft}",
+        BackgroundEffectEntry background => $"background|{GetGuid(background.Preset)}",
         VoiceEffectEntry voice => $"voice|{voice.TargetDialogId}|{GetGuid(voice.VoiceClip)}",
-        CameraEffectEntry camera => $"camera|{GetGuid(camera.Profile)}",
+        CameraEffectEntry camera => $"camera|{camera.EffectKey}|{camera.UseDurationOverride}|{camera.DurationOverride:0.###}|{camera.UseIntensityOverride}|{camera.IntensityOverride:0.###}",
         ScreenFlashEntry flash => $"flash|{flash.FlashType}|{flash.Duration:0.###}",
         _ => effect.GetType().Name
     };

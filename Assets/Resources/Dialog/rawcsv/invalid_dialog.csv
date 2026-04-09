@@ -1,4 +1,0 @@
-id,speaker,text,portrait,voice,next
-bad_001,旁白,"这一行还算正常。",narrator,,bad_002
-bad_002,主角,"这一行少了结尾引号,narrator,,bad_003
-bad_003,少女,"而且这一行的列数还会错",girl_mysterious

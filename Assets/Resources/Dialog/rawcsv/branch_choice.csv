@@ -1,4 +1,0 @@
-id,type,speaker,text,choice_a,choice_b,next_a,next_b
-choice_001,choice,系统,"要先查看哪份资料？","旧社团名单","事故报告",branch_a_001,branch_b_001
-branch_a_001,line,主角,"先看名单。也许能找到她的名字。 ",,,,,
-branch_b_001,line,主角,"先看事故报告。时间线更重要。",,,,,

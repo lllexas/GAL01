@@ -6,8 +6,26 @@ using UnityEngine.EventSystems;
 using System;
 using SpaceTUI;
 
+// 播放行事件数据
+public class PlayLineEventData
+{
+    public DialogEntry Entry;
+    public System.Action OnComplete;
+}
+
 namespace GAL
 {
+    /// <summary>
+    /// 对话条目状态
+    /// </summary>
+    public enum DialogEntryState
+    {
+        /// <summary>播放中</summary>
+        Playing,
+        /// <summary>播放结束</summary>
+        Completed
+    }
+    
     /// <summary>
     /// 对话数据 - Model 层
     /// </summary>
@@ -15,8 +33,8 @@ namespace GAL
     {
         public string characterName;
         public string text;
-        public Color nameColor = Color.white;
-        public float typingSpeed = 0.03f;
+        /// <summary>打字速度（全角字符/秒），默认 15</summary>
+        public float typingCharsPerSecond = 15f;
         public string characterID;
         public int? slotIndex;
     }
@@ -39,15 +57,6 @@ namespace GAL
     }
     
     /// <summary>
-    /// 选项数据包
-    /// </summary>
-    public class ChoicePackage
-    {
-        public string[] choices;
-        public System.Action<int> onSelect;
-    }
-    
-    /// <summary>
     /// 对话面板 - 独立响应事件
     /// </summary>
     public class DialoguePanel : SpaceUIAnimator
@@ -56,102 +65,148 @@ namespace GAL
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private TextMeshProUGUI dialogueText;
         
-        [Header("选项组件")]
-        [SerializeField] private Transform choiceContainer;
-        [SerializeField] private GameObject choiceButtonPrefab;
-        
         [Header("设置")]
-        [SerializeField] private float defaultTypingSpeed = 0.03f;
+        [SerializeField] private float defaultCharsPerSecond = 15f;
+        
+        [Header("自动播放")]
+        [SerializeField] private bool auto = false;
+        [SerializeField] private float autoPauseTime = 1.5f;
         
         protected override string UIID => "DialoguePanel";
         
         private Tween _typewriterTween;
+        private Tween _autoAdvanceTween;
         private bool _isTyping = false;
-        private bool _waitingForChoice = false;
-        private Action _onAdvance;
-        private Action<int> _onChoiceSelected;
+        private bool _appliedAutoState = false;
+        // private Action _onAdvance;  // 暂时禁用鼠标点击，此字段暂不需要
+        
+        // RoutedRequest 中的 onComplete，点击后调用
+        // private System.Action _currentOnComplete;  // 暂时禁用，此字段暂不需要
+        
+        // 播放行事件中的 OnComplete 回调
+        private System.Action _playLineOnComplete;
+        
+        /// <summary>当前对话条目</summary>
+        public DialogEntry CurrentDialogEntry { get; private set; }
+        
+        /// <summary>当前对话条目状态</summary>
+        public DialogEntryState CurrentState { get; private set; } = DialogEntryState.Completed;
+        
+        /// <summary>是否自动播放</summary>
+        public bool Auto 
+        { 
+            get { return auto; }
+            set { SetAutoState(value); }
+        }
+        
+        /// <summary>自动播放时每段话播放完成后的停留时间（秒）</summary>
+        public float AutoPauseTime 
+        { 
+            get { return autoPauseTime; } 
+            set { autoPauseTime = value; } 
+        }
         
         void Start()
         {
+            _appliedAutoState = auto;
             期望显示面板 += OnShowPanel;
             期望隐藏面板 += OnHidePanel;
             鼠标点击 += OnClickAdvance;
-            
-            // 订阅纯事件驱动的数据包
-            PostSystem.Instance.On("对话数据", OnDialogueDataReceived);
-            PostSystem.Instance.On("期望显示选项", OnChoicesReceived);
-            
             Hide();
+            // 注意：PostSystem.Register 由基类 SpaceUIAnimator.Awake() 处理，此处无需重复注册
         }
-        
-        protected override void OnDestroy()
+
+        void Update()
         {
-            base.OnDestroy();
-            // 安全注销：场景卸载时 Instance 可能已为 null
-            PostSystem.Instance?.Off("对话数据", OnDialogueDataReceived);
-            PostSystem.Instance?.Off("期望显示选项", OnChoicesReceived);
-        }
-        
-        void OnDialogueDataReceived(object data)
-        {
-            if (data is GALDirector.DialoguePackage package)
+            // Inspector/动画/序列化路径可能绕过属性 setter，运行时主动同步一次。
+            if (auto != _appliedAutoState)
             {
-                ShowDialogue(package.data, package.onComplete);
+                ApplyAutoStateChange();
             }
         }
         
-        void OnChoicesReceived(object data)
+        /// <summary>
+        /// 监听【播放行】事件 - 赋值 Entry、重置状态、开始打字机
+        /// </summary>
+        [Subscribe("播放行")]
+        public void OnPlayLine(object data)
         {
-            if (data is GALDirector.ChoicePackage package)
+            if (data is not PlayLineEventData eventData || eventData.Entry == null)
             {
-                ShowChoices(package.choices, package.onSelect);
+                Debug.LogWarning("[DialoguePanel] 播放行事件数据无效");
+                return;
             }
+
+            CancelAutoAdvance();
+            
+            // 1. 保存 Entry
+            CurrentDialogEntry = eventData.Entry;
+            // 2. 重置状态
+            CurrentState = DialogEntryState.Playing;
+            // 3. 保存回调
+            _playLineOnComplete = eventData.OnComplete;
+            
+            Debug.Log($"[DialoguePanel] 开始播放 - Entry: {eventData.Entry.Id}, Speaker: {eventData.Entry.Speaker}");
+            
+            // 4. 开始打字机！
+            var dialogueData = new DialogueData
+            {
+                characterName = eventData.Entry.Speaker,
+                text = eventData.Entry.Content,
+                typingCharsPerSecond = defaultCharsPerSecond,
+                characterID = null  // 可以从 Entry 扩展
+            };
+            ShowDialogueInternal(dialogueData);
         }
         
         void OnShowPanel(object data)
         {
-            if (data is DialogueData dialogueData)
-            {
-                if (!IsVisible) Show();
-                ShowDialogueInternal(dialogueData);
-            }
-            else if (!IsVisible)
-            {
-                FadeIn();
-            }
+            Debug.Log("[DialogPanel]正在打开台词面板");
+            FadeIn();
         }
         
         void OnHidePanel(object data)
         {
+            CancelAutoAdvance();
+            Debug.Log("[DialogPanel]正在关闭台词面板");
             FadeOut();
         }
         
         void OnClickAdvance(PointerEventData eventData)
         {
-            if (_waitingForChoice) return;
-            
-            if (_isTyping)
+            switch (CurrentState)
             {
-                _typewriterTween?.Complete();
-            }
-            else
-            {
-                _onAdvance?.Invoke();
-                _onAdvance = null;
+                case DialogEntryState.Playing:
+                    // 播放中：只快进当前打字，不打断 auto 模式
+                    _typewriterTween?.Complete();
+                    Debug.Log(auto
+                        ? "[DialoguePanel] Auto 模式下点击快进当前句"
+                        : "[DialoguePanel] 点击快进");
+                    break;
+                    
+                case DialogEntryState.Completed:
+                    // 已完成：点击视为手动接管，关闭 auto 后继续下一句
+                    if (auto)
+                    {
+                        Auto = false;
+                        Debug.Log("[DialoguePanel] 点击继续时关闭自动播放");
+                    }
+
+                    InvokeLineComplete();
+                    Debug.Log("[DialoguePanel] 点击继续下一句");
+                    break;
             }
         }
         
         void ShowDialogueInternal(DialogueData data)
         {
-            _waitingForChoice = false;
             
             // 角色名
             if (nameText != null)
             {
                 if (!string.IsNullOrEmpty(data.characterName))
                 {
-                    string hex = ColorUtility.ToHtmlStringRGB(data.nameColor);
-                    nameText.text = $"<color=#{hex}>{data.characterName}</color>";
+                    nameText.text = data.characterName;
                     nameText.gameObject.SetActive(true);
                 }
                 else
@@ -160,23 +215,80 @@ namespace GAL
                 }
             }
             
-            // 高亮说话者 - 纯事件驱动
-            var stage = FindObjectOfType<CharacterStage>();
-            int? speakerSlot = null;
-            if (stage != null && !string.IsNullOrEmpty(data.characterID))
-            {
-                speakerSlot = data.slotIndex ?? stage.FindCharacterSlot(data.characterID);
-            }
-            
-            // 发送事件而非直接调用 - MVVM 模式
-            PostSystem.Instance.Send("期望高亮角色", new SpeakerData { slotIndex = speakerSlot });
-            
-            // 打字机
-            float speed = data.typingSpeed > 0 ? data.typingSpeed : defaultTypingSpeed;
-            StartTypewriter(data.text, speed);
+            // 打字机（计算总时长 = 字符数 / 每秒字符数）
+            float charsPerSecond = data.typingCharsPerSecond > 0 ? data.typingCharsPerSecond : defaultCharsPerSecond;
+            float duration = data.text.Length / Mathf.Max(1f, charsPerSecond);
+            StartTypewriter(data.text, duration);
         }
         
-        void StartTypewriter(string text, float speed)
+        /// <summary>
+        /// 打字机完成回调 - 通知打字完成，由外部决定如何继续
+        /// </summary>
+        void OnTypewriterComplete()
+        {
+            _isTyping = false;
+            if (dialogueText != null) dialogueText.text = CurrentDialogEntry?.Content;
+            CurrentState = DialogEntryState.Completed;
+            
+            // 尝试自动推进（如果 auto 为 true）
+            TryAutoAdvance();
+        }
+        
+        /// <summary>
+        /// 尝试自动推进 - 检查 auto 状态并执行
+        /// </summary>
+        void TryAutoAdvance()
+        {
+            CancelAutoAdvance();
+
+            if (auto && CurrentState == DialogEntryState.Completed && _playLineOnComplete != null)
+            {
+                _autoAdvanceTween = DOVirtual.DelayedCall(autoPauseTime, InvokeLineComplete)
+                    .SetUpdate(true);
+            }
+        }
+        
+        /// <summary>
+        /// 触发行完成回调
+        /// </summary>
+        void InvokeLineComplete()
+        {
+            CancelAutoAdvance();
+            _playLineOnComplete?.Invoke();
+            _playLineOnComplete = null;
+        }
+
+        void CancelAutoAdvance()
+        {
+            _autoAdvanceTween?.Kill();
+            _autoAdvanceTween = null;
+        }
+
+        void SetAutoState(bool value)
+        {
+            if (auto == value && _appliedAutoState == value)
+            {
+                return;
+            }
+
+            auto = value;
+            ApplyAutoStateChange();
+        }
+
+        void ApplyAutoStateChange()
+        {
+            _appliedAutoState = auto;
+
+            if (!auto)
+            {
+                CancelAutoAdvance();
+                return;
+            }
+
+            TryAutoAdvance();
+        }
+        
+        void StartTypewriter(string text, float duration)
         {
             _typewriterTween?.Kill();
             _isTyping = true;
@@ -190,58 +302,17 @@ namespace GAL
                     if (dialogueText != null) dialogueText.text = text.Substring(0, x);
                 },
                 text.Length,
-                text.Length * Mathf.Max(0.01f, speed)
+                Mathf.Max(0.01f, duration)
             )
             .SetEase(Ease.Linear)
-            .OnComplete(() => {
-                _isTyping = false;
-                if (dialogueText != null) dialogueText.text = text;
-            });
+            .OnComplete(() => OnTypewriterComplete());
         }
         
-        // ========== 公共 API（供 GALDirector 调用）==========
         
-        public void ShowDialogue(DialogueData data, Action onComplete = null)
+        protected override void CloseAction()
         {
-            _onAdvance = onComplete;
-            OnShowPanel(data);
+            CancelAutoAdvance();
+            FadeOut();
         }
-        
-        public void ShowChoices(string[] choices, Action<int> onSelect)
-        {
-            _waitingForChoice = true;
-            _onChoiceSelected = onSelect;
-            
-            if (choiceContainer == null) return;
-            
-            foreach (Transform child in choiceContainer)
-                Destroy(child.gameObject);
-            
-            for (int i = 0; i < choices.Length; i++)
-            {
-                int index = i;
-                var btnObj = Instantiate(choiceButtonPrefab, choiceContainer);
-                var btnText = btnObj.GetComponentInChildren<TextMeshProUGUI>();
-                var btn = btnObj.GetComponent<Button>();
-                
-                if (btnText != null) btnText.text = choices[i];
-                btn.onClick.AddListener(() => {
-                    choiceContainer.gameObject.SetActive(false);
-                    _waitingForChoice = false;
-                    _onChoiceSelected?.Invoke(index);
-                    _onChoiceSelected = null;
-                });
-            }
-            
-            choiceContainer.gameObject.SetActive(true);
-        }
-        
-        public void Clear()
-        {
-            if (dialogueText != null) dialogueText.text = "";
-            if (nameText != null) nameText.text = "";
-        }
-        
-        protected override void CloseAction() => FadeOut();
     }
 }

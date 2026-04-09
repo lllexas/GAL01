@@ -36,3 +36,6 @@ Assets/AssetStoreTools*
 
 # Large font files (SDF assets can be regenerated from original fonts)
 Assets/Fonts/*.SDF.asset
+Assets/Fonts/LXGWWenKai-Medium SDF.asset
+Assets/Fonts/LXGWWenKaiMono-Medium SDF.asset
+Assets/Fonts/SourceHanSansSC-Medium SDF.asset

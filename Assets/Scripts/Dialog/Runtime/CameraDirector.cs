@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
@@ -7,7 +8,7 @@ using UnityEngine;
     /// 
     /// 使用方式：
     /// 1. 将 CameraDirector 挂载到 Main Camera 上
-    /// 2. 配置默认的 CameraProfileSO
+    /// 2. 配置默认的 CameraEffectLibrarySO
     /// 3. 通过 CameraDirector.Instance.PlayEffect(key) 播放预定义效果
     /// 4. 或者直接传 CameraEffectConfig 执行自定义效果
     /// </summary>
@@ -18,7 +19,7 @@ using UnityEngine;
 
         [Header("配置")]
         [Tooltip("默认镜头效果库")]
-        public CameraProfileSO DefaultProfile;
+        public CameraEffectLibrarySO DefaultLibrary;
 
         [Tooltip("闪白/闪黑用的UI遮罩（可选）")]
         public CanvasGroup FlashOverlay;
@@ -61,24 +62,63 @@ using UnityEngine;
         // ==================== 公开API ====================
 
         /// <summary>
-        /// 播放预定义效果（从 DefaultProfile 查找）
+        /// 播放预定义效果（从 DefaultLibrary 查找）
         /// </summary>
         public void PlayEffect(string effectKey)
         {
-            if (DefaultProfile == null)
+            PlayEffect(effectKey, null);
+        }
+
+        public void PlayEffect(string effectKey, System.Action onComplete)
+        {
+            if (DefaultLibrary == null)
             {
-                Debug.LogWarning("[CameraDirector] DefaultProfile 未设置");
+                Debug.LogWarning("[CameraDirector] DefaultLibrary 未设置");
+                onComplete?.Invoke();
                 return;
             }
 
-            if (DefaultProfile.TryGetEffect(effectKey, out var config))
+            if (DefaultLibrary.TryGetEffect(effectKey, out var config))
             {
-                PlayEffect(config);
+                PlayEffect(config, onComplete);
             }
             else
             {
                 Debug.LogWarning($"[CameraDirector] 找不到效果: {effectKey}");
+                onComplete?.Invoke();
             }
+        }
+
+        public void PlayEffect(string effectKey, float? durationOverride, float? intensityOverride, Action onComplete = null)
+        {
+            if (DefaultLibrary == null)
+            {
+                Debug.LogWarning("[CameraDirector] DefaultLibrary 未设置");
+                onComplete?.Invoke();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(effectKey))
+            {
+                Debug.LogWarning("[CameraDirector] EffectKey 为空");
+                onComplete?.Invoke();
+                return;
+            }
+
+            if (!DefaultLibrary.TryGetEffect(effectKey, out var config))
+            {
+                Debug.LogWarning($"[CameraDirector] 找不到效果: {effectKey}");
+                onComplete?.Invoke();
+                return;
+            }
+
+            if (durationOverride.HasValue)
+                config.Duration = durationOverride.Value;
+
+            if (intensityOverride.HasValue)
+                config.Intensity = intensityOverride.Value;
+
+            PlayEffect(config, onComplete);
         }
 
         /// <summary>
@@ -86,29 +126,37 @@ using UnityEngine;
         /// </summary>
         public void PlayEffect(CameraEffectConfig config)
         {
+            PlayEffect(config, null);
+        }
+
+        public void PlayEffect(CameraEffectConfig config, System.Action onComplete)
+        {
             switch (config.EffectType)
             {
                 case CameraEffectType.ShakeHorizontal:
-                    Shake(config, Vector3.right);
+                    Shake(config, Vector3.right, onComplete);
                     break;
                 case CameraEffectType.ShakeVertical:
-                    Shake(config, Vector3.up);
+                    Shake(config, Vector3.up, onComplete);
                     break;
                 case CameraEffectType.ShakeRandom:
-                    Shake(config, Vector3.one);
+                    Shake(config, Vector3.one, onComplete);
                     break;
                 case CameraEffectType.ZoomIn:
                 case CameraEffectType.ZoomOut:
-                    Zoom(config);
+                    Zoom(config, onComplete);
                     break;
                 case CameraEffectType.MoveTo:
-                    Move(config);
+                    Move(config, onComplete);
                     break;
                 case CameraEffectType.FlashWhite:
-                    Flash(Color.white, config.Duration);
+                    Flash(Color.white, config.Duration, onComplete);
                     break;
                 case CameraEffectType.FlashBlack:
-                    Flash(Color.black, config.Duration);
+                    Flash(Color.black, config.Duration, onComplete);
+                    break;
+                default:
+                    onComplete?.Invoke();
                     break;
             }
         }
@@ -144,7 +192,7 @@ using UnityEngine;
 
         // ==================== 效果实现 ====================
 
-        private void Shake(CameraEffectConfig config, Vector3 direction)
+        private void Shake(CameraEffectConfig config, Vector3 direction, System.Action onComplete)
         {
             _originalPosition = _cameraTransform.localPosition;
             
@@ -165,12 +213,16 @@ using UnityEngine;
                     true
                 )
                 .SetEase(config.EaseType)
-                .OnComplete(() => _cameraTransform.localPosition = _originalPosition);
+                .OnComplete(() =>
+                {
+                    _cameraTransform.localPosition = _originalPosition;
+                    onComplete?.Invoke();
+                });
 
             _activeTweens.Add(tween);
         }
 
-        private void Zoom(CameraEffectConfig config)
+        private void Zoom(CameraEffectConfig config, System.Action onComplete)
         {
             float targetSize = DefaultOrthoSize / config.TargetZoom; // Zoom值越大，正交大小越小
             
@@ -180,26 +232,29 @@ using UnityEngine;
                     targetSize,
                     config.Duration
                 )
-                .SetEase(config.EaseType);
+                .SetEase(config.EaseType)
+                .OnComplete(() => onComplete?.Invoke());
 
             _activeTweens.Add(tween);
         }
 
-        private void Move(CameraEffectConfig config)
+        private void Move(CameraEffectConfig config, System.Action onComplete)
         {
             Vector3 targetPos = _cameraTransform.localPosition + config.TargetOffset;
             
             var tween = _cameraTransform.DOLocalMove(targetPos, config.Duration)
-                .SetEase(config.EaseType);
+                .SetEase(config.EaseType)
+                .OnComplete(() => onComplete?.Invoke());
 
             _activeTweens.Add(tween);
         }
 
-        private void Flash(Color color, float duration)
+        private void Flash(Color color, float duration, System.Action onComplete)
         {
             if (FlashOverlay == null)
             {
                 Debug.LogWarning("[CameraDirector] FlashOverlay 未设置，无法播放闪白/闪黑效果");
+                onComplete?.Invoke();
                 return;
             }
 
@@ -218,7 +273,11 @@ using UnityEngine;
                 {
                     FlashOverlay.DOFade(0f, duration * 0.7f)
                         .SetEase(Ease.Linear)
-                        .OnComplete(() => FlashOverlay.gameObject.SetActive(false));
+                        .OnComplete(() =>
+                        {
+                            FlashOverlay.gameObject.SetActive(false);
+                            onComplete?.Invoke();
+                        });
                 });
 
             _activeTweens.Add(tween);
@@ -234,4 +293,3 @@ using UnityEngine;
             _activeTweens.Clear();
         }
     }
-

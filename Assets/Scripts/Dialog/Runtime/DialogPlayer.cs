@@ -1,4 +1,3 @@
-using NekoGraph;
 using UnityEngine;
 using System.Collections;
 using GAL;
@@ -6,45 +5,23 @@ using GAL;
     /// <summary>
     /// 对话播放器 - 后端推送包 → 前端自治渲染 → 回调通知完成
     /// 
-    /// 架构模式：文档流（Document Stream）
-    /// - 后端推送完整 DialogSequenceSO 包（剧本）
-    /// - 前端自主控制渲染节奏（打字机、动画、等待点击）
-    /// - 播放完成回调 runner.InjectSignal 恢复 NekoGraph 流
+    /// 自相似三层架构：
+    /// VFSHandler ──[直接调用]──► DialogPlayer ──[事件+委托]──► DialoguePanel
+    /// 结构相同（发包-等待-回调），实现因地制宜
+    /// 
+    /// 前端完全解耦：不引用任何 NekoGraph 类型
     /// </summary>
-    public class DialogPlayer : MonoBehaviour
+    public class DialogPlayer : SingletonMono<DialogPlayer>
     {
-        private static DialogPlayer _instance;
         private Coroutine _playingCoroutine;
-        
-        // 播放状态
-        private bool _isWaitingForClick = false;
-        private System.Action _onClickCallback;
-
-        private void Awake()
-        {
-            if (_instance != null && _instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            _instance = this;
-        }
-
-        private void OnDestroy()
-        {
-            if (_instance == this)
-                _instance = null;
-        }
+        private System.Action _onSequenceComplete;
+        private int _currentIndex;
         
         /// <summary>
-        /// 后端推送入口：接收完整包，开始自治渲染
+        /// VFSHandler 调用入口 - 第一层：直接调用
+        /// 前端只接收 sequence 和 onComplete 回调，不碰任何 NekoGraph 类型
         /// </summary>
-        public static bool TryPlay(
-            DialogSequenceSO sequence,
-            SignalContext context,
-            BasePackData pack,
-            GraphRunner runner,
-            string packInstanceID)
+        public bool TryPlay(DialogSequenceSO sequence, System.Action onComplete)
         {
             if (sequence == null)
             {
@@ -52,126 +29,210 @@ using GAL;
                 return false;
             }
 
-            if (_instance == null)
-            {
-                Debug.LogWarning($"[DialogPlayer] 场景中不存在 DialogPlayer，序列 '{sequence.name}' 透传");
-                return false;
-            }
-
-            // 中断之前的播放
-            if (_instance._playingCoroutine != null)
-            {
-                _instance.StopCoroutine(_instance._playingCoroutine);
-            }
+            this.StartPlay(sequence, onComplete);
+            return true; // 已接管，后端挂起等待回调
+        }
+        
+        void StartPlay(DialogSequenceSO sequence, System.Action onComplete)
+        {
+            if (_playingCoroutine != null)
+                StopCoroutine(_playingCoroutine);
             
-            // 启动新播放协程，完成后回调
-            _instance._playingCoroutine = _instance.StartCoroutine(
-                _instance.PlaySequence(sequence, () => {
-                    runner.InjectSignal(context);
-                })
-            );
-            
-            return true; // true = 已接管，后端挂起等待回调
+            _onSequenceComplete = onComplete;
+            _playingCoroutine = StartCoroutine(PlaySequence(sequence));
         }
         
         /// <summary>
-        /// 前端自治渲染：解包 → 逐条播放 → 等待用户输入 → 完成回调
+        /// 第二层：解包为 RoutedRequest，逐条发事件+委托
         /// </summary>
-        private IEnumerator PlaySequence(DialogSequenceSO sequence, System.Action onComplete)
+        IEnumerator PlaySequence(DialogSequenceSO sequence)
         {
+            PostSystem.Instance.Send("期望显示面板", "DialoguePanel");
+            Debug.Log($"[DialogPlayer] 已唤起台词面板。");
             Debug.Log($"[DialogPlayer] 开始播放序列: {sequence.name} ({sequence.Entries.Count} 条)");
             
-            foreach (var entry in sequence.Entries)
+            for (_currentIndex = 0; _currentIndex < sequence.Entries.Count; _currentIndex++)
             {
+                var entry = sequence.Entries[_currentIndex];
                 if (entry == null) continue;
+                
+                bool stepComplete = false;
+                System.Action onStepComplete = () => stepComplete = true;
                 
                 switch (entry)
                 {
                     case DialogEntry dialog:
-                        yield return PlayDialogEntry(dialog);
+                        yield return PlayDialog(dialog, onStepComplete);
                         break;
                         
                     case AvatarEffectEntry avatar:
-                        yield return PlayAvatarEntry(avatar);
+                        yield return PlayAvatar(avatar, onStepComplete);
+                        break;
+
+                    case BackgroundEffectEntry background:
+                        yield return PlayBackground(background, onStepComplete);
                         break;
                         
                     case ScreenFlashEntry flash:
-                        yield return PlayFlashEntry(flash);
+                        yield return PlayFlash(flash, onStepComplete);
                         break;
                         
                     case VoiceEffectEntry voice:
-                        yield return PlayVoiceEntry(voice);
+                        yield return PlayVoice(voice, onStepComplete);
                         break;
                         
                     case CameraEffectEntry camera:
-                        yield return PlayCameraEntry(camera);
+                        yield return PlayCamera(camera, onStepComplete);
                         break;
                 }
+                
+                yield return new WaitUntil(() => stepComplete);
             }
             
             Debug.Log($"[DialogPlayer] 序列播放完成: {sequence.name}");
+            
+            // 兜底回收 GAL 面板
+            GALFrontend.Instance?.HideAllGalPanels();
+            
             _playingCoroutine = null;
-            onComplete?.Invoke();
+            _onSequenceComplete?.Invoke(); // 回调后端 (VFSHandler) 
         }
         
-        // ========== 各类型条目渲染 ==========
+        // ========== 各类型条目：发事件带委托 ==========
         
-        private IEnumerator PlayDialogEntry(DialogEntry dialog)
+        IEnumerator PlayDialog(DialogEntry dialog, System.Action onStepComplete)
         {
-            // 发事件给 DialoguePanel，等待点击继续
-            _isWaitingForClick = true;
-            bool clicked = false;
+            bool lineComplete = false;
             
-            PostSystem.Instance.Send("期望显示面板", "DialoguePanel");
-            PostSystem.Instance.Send("对话数据", new DialoguePackage {
-                data = new DialogueData {
-                    characterName = dialog.Speaker,
-                    text = dialog.Content
+            // 发送【播放行】事件，逐行播放
+            PostSystem.Instance.Send("播放行", new PlayLineEventData
+            {
+                Entry = dialog,
+                OnComplete = () => lineComplete = true
+            });
+            
+            // 等待该行播放完成
+            yield return new WaitUntil(() => lineComplete);
+            
+            // 通知外层步骤完成
+            onStepComplete?.Invoke();
+        }
+        
+        IEnumerator PlayAvatar(AvatarEffectEntry avatar, System.Action onStepComplete)
+        {
+            Debug.Log($"[Avatar]正在变换角色槽位：{avatar.SlotIndex}");
+            if (avatar == null)
+            {
+                onStepComplete?.Invoke();
+                yield break;
+            }
+
+            int slotIndex = Mathf.Clamp(avatar.SlotIndex, 0, 4);
+            string uiid = $"CharSlot{slotIndex}";
+
+            if (avatar.Action == AvatarAction.Hide)
+            {
+                PostSystem.Instance.Send("期望隐藏角色", new RoutedRequest<CharacterHideData>
+                {
+                    uiid = uiid,
+                    data = new CharacterHideData { slotIndex = slotIndex },
+                    onComplete = onStepComplete
+                });
+                yield break;
+            }
+
+            if (avatar.Profile == null)
+            {
+                Debug.LogWarning("[DialogPlayer] 角色 Profile 为空");
+                onStepComplete?.Invoke();
+                yield break;
+            }
+
+            PostSystem.Instance.Send("期望显示角色", new RoutedRequest<CharacterShowData>
+            {
+                uiid = uiid,
+                data = new CharacterShowData
+                {
+                    slotIndex = slotIndex,
+                    id = avatar.Profile.CharacterId,
+                    profile = avatar.Profile,
+                    emotionKey = avatar.EmotionKey,
+                    fromLeft = avatar.FromLeft
                 },
-                onComplete = () => clicked = true
+                onComplete = onStepComplete
             });
             
-            // 等待点击
-            yield return new WaitUntil(() => clicked);
-            _isWaitingForClick = false;
+            yield return new WaitForSeconds(0.1f);
         }
-        
-        private IEnumerator PlayAvatarEntry(AvatarEffectEntry avatar)
+
+        IEnumerator PlayBackground(BackgroundEffectEntry background, System.Action onStepComplete)
         {
-            // 发送角色显示事件
-            PostSystem.Instance.Send("期望显示面板", new CharacterShowData {
-                slotIndex = 0, // TODO: 从 Avatar 配置获取槽位
-                id = avatar.CharacterId,
-                sprite = avatar.Avatar
+            if (background?.Preset == null)
+            {
+                Debug.LogWarning("[DialogPlayer] 背景预设为空");
+                onStepComplete?.Invoke();
+                yield break;
+            }
+
+            PostSystem.Instance.Send("期望显示面板", "BackgroundAnimator");
+            
+            PostSystem.Instance.Send("期望切换背景", new RoutedRequest<BackgroundChangeData>
+            {
+                uiid = "BackgroundAnimator",
+                data = new BackgroundChangeData
+                {
+                    sprite = background.Preset.MainSprite,
+                    fadeType = background.Preset.DefaultFade
+                },
+                onComplete = onStepComplete
             });
             
-            yield return new WaitForSeconds(0.1f); // 最小帧延迟
+            // 等待一帧让动画开始
+            yield return null;
         }
         
-        private IEnumerator PlayFlashEntry(ScreenFlashEntry flash)
+        IEnumerator PlayFlash(ScreenFlashEntry flash, System.Action onStepComplete)
         {
-            var transType = flash.FlashType == ScreenFlashType.White 
-                ? TransitionType.FlashWhite 
+            var transType = flash.FlashType == ScreenFlashType.White
+                ? TransitionType.FlashWhite
                 : TransitionType.FadeToBlack;
                 
-            PostSystem.Instance.Send("期望显示面板", "TransitionManager");
-            PostSystem.Instance.Send("转场数据", new TransitionData {
-                type = transType,
-                duration = flash.Duration
+            PostSystem.Instance.Send("期望显示面板", new RoutedRequest<TransitionData>
+            {
+                uiid = "TransitionManager",
+                data = new TransitionData
+                {
+                    type = transType,
+                    duration = flash.Duration
+                },
+                onComplete = onStepComplete
             });
             
             yield return new WaitForSeconds(flash.Duration);
         }
         
-        private IEnumerator PlayVoiceEntry(VoiceEffectEntry voice)
+        IEnumerator PlayVoice(VoiceEffectEntry voice, System.Action onStepComplete)
         {
             // TODO: 接入音频系统
+            Debug.Log($"[DialogPlayer] 播放语音: {voice?.VoiceClip?.name}");
             yield return null;
+            onStepComplete?.Invoke();
         }
         
-        private IEnumerator PlayCameraEntry(CameraEffectEntry camera)
+        IEnumerator PlayCamera(CameraEffectEntry camera, System.Action onStepComplete)
         {
-            // TODO: 接入镜头系统
-            yield return null;
+            if (CameraDirector.Instance == null)
+            {
+                Debug.LogWarning("[DialogPlayer] CameraDirector 不存在");
+                onStepComplete?.Invoke();
+                yield break;
+            }
+
+            bool completed = false;
+            float? durationOverride = camera.UseDurationOverride ? camera.DurationOverride : null;
+            float? intensityOverride = camera.UseIntensityOverride ? camera.IntensityOverride : null;
+            CameraDirector.Instance.PlayEffect(camera.EffectKey, durationOverride, intensityOverride, () => completed = true);
+            yield return new WaitUntil(() => completed);
+            onStepComplete?.Invoke();
         }
     }
