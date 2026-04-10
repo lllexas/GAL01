@@ -5,7 +5,7 @@
   "ReadableFrom": 100,
   "WritableFrom": 1000,
   "CreatedAt": 1775563233,
-  "ModifiedAt": 1775807492,
+  "ModifiedAt": 1775817677,
   "Nodes": {
     "$type": "System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[BaseNodeData, NekoGraph.Runtime]], mscorlib",
     "02f7bc27-31d3-49cf-a6cd-496668b14546": {
@@ -90,7 +90,9 @@
       "ProcessID": "intro",
       "InputNodeIDs": [
         "6b0262cb-17c2-4bbe-b3a6-79f6f454e382",
-        "0583351b-67fc-477e-b605-2a8bc6cbba6f"
+        "0583351b-67fc-477e-b605-2a8bc6cbba6f",
+        "d164e8e4-774c-4513-8022-288d9b1daf91",
+        "c0a7cb5a-c9fd-4708-8836-bedb1424908d"
       ],
       "NodeID": "065284dadc18404cbaa57c898078c46b",
       "Name": "LeafB:intro",
@@ -275,7 +277,8 @@
         ]
       },
       "InputNodeIDs": [
-        "2e53de02-e371-4920-87e5-9f30fca11b8d"
+        "2e53de02-e371-4920-87e5-9f30fca11b8d",
+        "ef1a4ba0-2c65-46c8-8afa-1a485b94fdc1"
       ],
       "OutputNodeIDs": [
         "0583351b-67fc-477e-b605-2a8bc6cbba6f"
@@ -366,6 +369,7 @@
     },
     "ef1a4ba0-2c65-46c8-8afa-1a485b94fdc1": {
       "$type": "VFSNodeData, NekoGraph.Runtime",
+      "ParentNodeID": "2e53de02-e371-4920-87e5-9f30fca11b8d",
       "ChildNodeIDs": [
         "d164e8e4-774c-4513-8022-288d9b1daf91",
         "6b0262cb-17c2-4bbe-b3a6-79f6f454e382",
@@ -416,7 +420,9 @@
           "选择了第一个选项1"
         ]
       },
-      "InputNodeIDs": [],
+      "InputNodeIDs": [
+        "ef1a4ba0-2c65-46c8-8afa-1a485b94fdc1"
+      ],
       "OutputNodeIDs": [
         "065284dadc18404cbaa57c898078c46b"
       ],
@@ -445,7 +451,9 @@
           "选择了3q"
         ]
       },
-      "InputNodeIDs": [],
+      "InputNodeIDs": [
+        "ef1a4ba0-2c65-46c8-8afa-1a485b94fdc1"
+      ],
       "OutputNodeIDs": [
         "065284dadc18404cbaa57c898078c46b"
       ],

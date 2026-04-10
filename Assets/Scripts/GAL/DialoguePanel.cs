@@ -116,8 +116,9 @@ namespace GAL
             // 注意：PostSystem.Register 由基类 SpaceUIAnimator.Awake() 处理，此处无需重复注册
         }
 
-        void Update()
+        protected override void Update()
         {
+            base.Update();
             // Inspector/动画/序列化路径可能绕过属性 setter，运行时主动同步一次。
             if (auto != _appliedAutoState)
             {

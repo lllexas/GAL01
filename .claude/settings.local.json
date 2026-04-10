@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -rn \"SaveAsset\\\\|SetDirty\\\\|EditorUtility.SetDirty\" /g/ProjectOfGame/GAL01/Library/PackageCache/com.unity.shadergraph@14.0.11/Editor/*.cs)"
+    ]
+  }
+}

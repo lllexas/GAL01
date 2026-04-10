@@ -67,5 +67,23 @@
       "AssetGuid": "c252ef04202d25e418de89718a98bd8b"
     },
     "EffectiveID": "dialog-sequence:c252ef04202d25e418de89718a98bd8b"
+  },
+  "dialog-sequence:b1d295b71d587464d8cbe74474945518": {
+    "ID": "dialog-sequence:b1d295b71d587464d8cbe74474945518",
+    "PackID": "dialog-sequence:b1d295b71d587464d8cbe74474945518",
+    "Kind": 2,
+    "Storage": 0,
+    "ResourcePath": "Dialog/Test1DialogSequence 1",
+    "ObjectType": "DialogSequenceSO",
+    "GraphType": null,
+    "DisplayName": "Test1DialogSequence 1",
+    "Author": null,
+    "Version": "1.0.0",
+    "Description": "",
+    "CustomFields": {
+      "AssetPath": "Assets/Resources/Dialog/Test1DialogSequence 1.asset",
+      "AssetGuid": "b1d295b71d587464d8cbe74474945518"
+    },
+    "EffectiveID": "dialog-sequence:b1d295b71d587464d8cbe74474945518"
   }
 }
