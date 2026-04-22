@@ -1,5 +1,8 @@
 using System;
+using NekoGraph;
 
+namespace GAL
+{
 /// <summary>
 /// .choice VFS 节点的数据模型
 ///
@@ -29,4 +32,5 @@ public class ChoicePackage
 {
     public ChoiceOption[] Options;
     public Action<int> RouteSignal;
+}
 }

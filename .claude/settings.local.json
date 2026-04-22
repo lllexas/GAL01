@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(grep -rn \"SaveAsset\\\\|SetDirty\\\\|EditorUtility.SetDirty\" /g/ProjectOfGame/GAL01/Library/PackageCache/com.unity.shadergraph@14.0.11/Editor/*.cs)"
+      "Bash(grep -rn \"SaveAsset\\\\|SetDirty\\\\|EditorUtility.SetDirty\" /g/ProjectOfGame/GAL01/Library/PackageCache/com.unity.shadergraph@14.0.11/Editor/*.cs)",
+      "Bash(git submodule:*)",
+      "Bash(git log:*)",
+      "Bash(grep -v \"\\\\.cs$\\\\|\\\\.meta$\\\\|\\\\.png$\\\\|\\\\.jpg$\\\\|\\\\.fbx$\\\\|\\\\.ogg$\\\\|\\\\.mp3$\\\\|\\\\.wav$\\\\|\\\\.ttf$\\\\|\\\\.otf$\\\\|\\\\.pdf$\\\\|\\\\.txt$\\\\|\\\\.md$\\\\|\\\\.json$\\\\|\\\\.nekograph$\\\\|\\\\.asset$\")"
     ]
   }
 }

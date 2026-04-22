@@ -2,6 +2,8 @@ using NekoGraph;
 using UnityEngine;
 using System.Collections.Generic;
 
+namespace GAL
+{
 /// <summary>
 /// Choice VFS 处理器 - 处理 .choice 后缀的 VFS 节点
 ///
@@ -100,4 +102,5 @@ public static class ChoiceVFSHandler
 
         return HandleResult.Wait;
     }
+}
 }

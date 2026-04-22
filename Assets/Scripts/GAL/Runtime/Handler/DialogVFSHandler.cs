@@ -1,7 +1,8 @@
-
 using NekoGraph;
 using UnityEngine;
 
+namespace GAL
+{
 /// <summary>
 /// Dialog VFS 处理器 - 处理 .dialog 后缀的 VFS 文件节点
 ///
@@ -73,15 +74,45 @@ public static class DialogVFSHandler
             }
         }
 
-            // 3. 交给 DialogPlayer 异步播放，完成后通过 continueAction 恢复图流
-            bool handledAsync = DialogPlayer.Instance.TryPlay(sequence, onComplete: () => {
-                continueAction?.Invoke();
+            // 3. 交给 DialogPlayer 异步播放，完成后显式恢复挂起的 signal
+            bool handledAsync = DialogPlayer.Instance.TryPlay(sequence, onComplete: () =>
+            {
+                // Wait 语义已改为挂起当前 signal 本体，continueAction 已为空操作。
+                // 需通过 ResumeSuspendedSignalToTarget 显式决定下一跳。
+                if (!pack.Nodes.TryGetValue(context.CurrentNodeId, out var node)
+                    || node is not VFSNodeData vfsNode)
+                {
+                    Debug.LogError($"[DialogVFSHandler] 对话完成后找不到当前 VFS 节点: {context.CurrentNodeId}");
+                    return;
+                }
+
+                if (vfsNode.ChildNodeIDs.Count == 0)
+                {
+                    // 没有后续节点，仅标记当前节点已处理
+                    node.IsChecked = true;
+                    pack.SuspendedSignals.Remove(context.SignalId);
+                    Debug.Log($"[DialogVFSHandler] '{sequence.name}' 播放完毕，无后续节点");
+                    return;
+                }
+
+                string targetId = vfsNode.ChildNodeIDs[0];
+                bool resumed = runner.ResumeSuspendedSignalToTarget(
+                    packInstanceID,
+                    context.SignalId,
+                    context.CurrentNodeId,
+                    targetId);
+
+                if (!resumed)
+                    Debug.LogError($"[DialogVFSHandler] 恢复 signal 失败: packID={packInstanceID}, signalId={context.SignalId}");
+                else
+                    Debug.Log($"[DialogVFSHandler] '{sequence.name}' 播放完毕，路由到节点: {targetId}");
             });
-            
+
             if (handledAsync)
-                return HandleResult.Wait; // 已接管，Wait 模式下通过 continueAction 恢复
+                return HandleResult.Wait; // 已接管，Wait 模式下通过显式 Resume 恢复
 
             Debug.LogWarning($"[DialogVFSHandler] '{sequence.name}' 当前走透传模式，未阻塞图流程");
             return HandleResult.Push;
         }
+}
 }

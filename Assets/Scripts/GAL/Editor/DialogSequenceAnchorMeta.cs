@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+namespace GAL
+{
 [Serializable]
 public sealed class DialogSequenceEffectAnchorRecord
 {
@@ -22,5 +24,6 @@ public sealed class DialogSequenceAnchorMeta : ScriptableObject
     public string SequenceMetaId;
     public string SequenceAssetGuid;
     public List<DialogSequenceEffectAnchorRecord> Records = new();
+}
 }
 #endif

@@ -1,6 +1,7 @@
 using System;
 
-
+namespace GAL
+{
     /// <summary>
     /// 对话序列条目接口 - 支持对话文本和演出效果的统一抽象
     /// </summary>
@@ -21,4 +22,4 @@ using System;
         /// <summary>对话内容</summary>
         public string Content;
     }
-
+}

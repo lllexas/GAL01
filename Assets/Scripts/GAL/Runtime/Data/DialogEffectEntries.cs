@@ -1,7 +1,8 @@
 using System;
 using UnityEngine;
 
-
+namespace GAL
+{
 /// <summary>
 /// 演出效果条目基类
 /// </summary>
@@ -73,3 +74,4 @@ public class ScreenFlashEntry : EffectEntry
 
 public enum FadeType { Instant, FadeIn, FadeInWithScale }
 public enum ScreenFlashType { White, Black, Red }
+}

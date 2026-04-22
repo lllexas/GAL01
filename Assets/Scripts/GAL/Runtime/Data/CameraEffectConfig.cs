@@ -2,7 +2,8 @@ using System;
 using DG.Tweening;
 using UnityEngine;
 
-
+namespace GAL
+{
     /// <summary>
     /// 镜头效果类型
     /// </summary>
@@ -125,4 +126,5 @@ using UnityEngine;
             };
         }
     }
+}
 

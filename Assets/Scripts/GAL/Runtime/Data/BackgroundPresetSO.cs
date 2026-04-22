@@ -1,5 +1,7 @@
 using UnityEngine;
 
+namespace GAL
+{
 /// <summary>
 /// 背景预设 - 供对话序列引用的包装资源
 /// </summary>
@@ -18,4 +20,5 @@ public class BackgroundPresetSO : ScriptableObject
     [TextArea(2, 4)]
     [Tooltip("备注")]
     public string Note;
+}
 }

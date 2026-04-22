@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+namespace GAL
+{
 /// <summary>
 /// 角色立绘显示配置 - 统一管理各情绪立绘及其显示参数
 /// </summary>
@@ -67,4 +69,5 @@ public class CharacterAvatarPreset
 
     [Tooltip("Image.preserveAspect")]
     public bool PreserveAspect = true;
+}
 }

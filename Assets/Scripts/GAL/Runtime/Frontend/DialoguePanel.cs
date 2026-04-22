@@ -6,15 +6,14 @@ using UnityEngine.EventSystems;
 using System;
 using SpaceTUI;
 
-// 播放行事件数据
-public class PlayLineEventData
-{
-    public DialogEntry Entry;
-    public System.Action OnComplete;
-}
-
 namespace GAL
 {
+    // 播放行事件数据
+    public class PlayLineEventData
+    {
+        public DialogEntry Entry;
+        public System.Action OnComplete;
+    }
     /// <summary>
     /// 对话条目状态
     /// </summary>

@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
+namespace GAL
+{
     /// <summary>
     /// 相机导演 - 2D游戏镜头效果执行器
-    /// 
+    ///
     /// 使用方式：
     /// 1. 将 CameraDirector 挂载到 Main Camera 上
     /// 2. 配置默认的 CameraEffectLibrarySO
@@ -167,12 +169,12 @@ using UnityEngine;
         public void StopAll(bool resetToDefault = true)
         {
             KillAllEffects();
-            
+
             if (resetToDefault)
             {
                 _cameraTransform.localPosition = _originalPosition;
                 _camera.orthographicSize = _originalOrthoSize;
-                
+
                 if (FlashOverlay != null)
                 {
                     FlashOverlay.alpha = 0;
@@ -195,13 +197,13 @@ using UnityEngine;
         private void Shake(CameraEffectConfig config, Vector3 direction, System.Action onComplete)
         {
             _originalPosition = _cameraTransform.localPosition;
-            
+
             // 计算震动强度（像素转世界单位，近似）
             float strength = config.Intensity * DefaultShakeStrength * 0.01f;
-            
+
             // 如果是随机震动，用 Vector3.one，否则限制方向
-            Vector3 shakeStrength = direction == Vector3.one 
-                ? new Vector3(strength, strength, 0) 
+            Vector3 shakeStrength = direction == Vector3.one
+                ? new Vector3(strength, strength, 0)
                 : direction * strength;
 
             var tween = _cameraTransform.DOShakePosition(
@@ -225,7 +227,7 @@ using UnityEngine;
         private void Zoom(CameraEffectConfig config, System.Action onComplete)
         {
             float targetSize = DefaultOrthoSize / config.TargetZoom; // Zoom值越大，正交大小越小
-            
+
             var tween = DOTween.To(
                     () => _camera.orthographicSize,
                     size => _camera.orthographicSize = size,
@@ -241,7 +243,7 @@ using UnityEngine;
         private void Move(CameraEffectConfig config, System.Action onComplete)
         {
             Vector3 targetPos = _cameraTransform.localPosition + config.TargetOffset;
-            
+
             var tween = _cameraTransform.DOLocalMove(targetPos, config.Duration)
                 .SetEase(config.EaseType)
                 .OnComplete(() => onComplete?.Invoke());
@@ -259,14 +261,14 @@ using UnityEngine;
             }
 
             FlashOverlay.gameObject.SetActive(true);
-            
+
             // 设置颜色
             var image = FlashOverlay.GetComponent<UnityEngine.UI.Image>();
             if (image != null) image.color = color;
 
             // 闪入->闪出
             FlashOverlay.alpha = 0;
-            
+
             var tween = FlashOverlay.DOFade(1f, duration * 0.3f)
                 .SetEase(Ease.Linear)
                 .OnComplete(() =>
@@ -293,3 +295,4 @@ using UnityEngine;
             _activeTweens.Clear();
         }
     }
+}

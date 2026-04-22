@@ -8,10 +8,12 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
+namespace GAL
+{
 [CustomEditor(typeof(DialogSequenceSO))]
 public class DialogSequenceSOEditor : UnityEditor.Editor
 {
-    private const string AnchorMetaRoot = "Assets/Scripts/Dialog/Editor/AnchorMeta";
+    private const string AnchorMetaRoot = "Assets/Scripts/GAL/Editor/AnchorMeta";
     private const float ListHeight = 320f;
 
     private DialogSequenceSO _target;
@@ -1002,5 +1004,6 @@ public class DialogSequenceSOEditor : UnityEditor.Editor
         public float Height;
         public int CollapsedCount;
     }
+}
 }
 #endif

@@ -37,97 +37,97 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 8300286042720960612
-      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      type: {class: DialogEntry, ns: GAL, asm: NekoGraph.GAL}
       data:
         Id: binary_001
         Speaker: "\u7CFB\u7EDF"
         Content: "\u6B22\u8FCE\u6765\u5230\u9009\u62E9\u6D4B\u8BD5\u573A\u3002"
     - rid: 8300286042720960613
-      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      type: {class: DialogEntry, ns: GAL, asm: NekoGraph.GAL}
       data:
         Id: binary_002
         Speaker: "\u5F15\u5BFC\u8005"
         Content: "\u4F60\u9762\u524D\u7684\u754C\u9762\u6709\u4E24\u4E2A\u6309\u94AE\u3002\u5DE6\u8FB9\u5199\u7740'\u662F'\uFF0C\u53F3\u8FB9\u5199\u7740'\u5426'\u3002"
     - rid: 8300286042720960614
-      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      type: {class: DialogEntry, ns: GAL, asm: NekoGraph.GAL}
       data:
         Id: binary_003
         Speaker: "\u5F15\u5BFC\u8005"
         Content: "\u4F46\u4F60\u5F88\u5FEB\u4F1A\u53D1\u73B0\uFF0C\u8FD9\u4E24\u4E2A\u9009\u9879\u6307\u5411\u540C\u4E00\u4E2A\u7EC8\u70B9\u3002"
     - rid: 8300286042720960615
-      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      type: {class: DialogEntry, ns: GAL, asm: NekoGraph.GAL}
       data:
         Id: binary_004
         Speaker: "\u4E3B\u89D2"
         Content: "\u90A3\u6211\u4E3A\u4EC0\u4E48\u8981\u9009\uFF1F"
     - rid: 8300286042720960616
-      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      type: {class: DialogEntry, ns: GAL, asm: NekoGraph.GAL}
       data:
         Id: binary_005
         Speaker: "\u5F15\u5BFC\u8005"
         Content: "\u4E3A\u4E86\u4F53\u9A8C'\u9009\u62E9'\u672C\u8EAB\u7684\u5E7B\u89C9\u3002\u73B0\u5728\uFF0C\u70B9\u51FB\u5DE6\u8FB9\u3002"
     - rid: 8300286042720960617
-      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      type: {class: DialogEntry, ns: GAL, asm: NekoGraph.GAL}
       data:
         Id: binary_006
         Speaker: "\u7CFB\u7EDF"
         Content: "\u3010\u9009\u62E9\u5206\u652FA\uFF1A\u4F60\u70B9\u51FB\u4E86\u5DE6\u8FB9\u3011"
     - rid: 8300286042720960618
-      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      type: {class: DialogEntry, ns: GAL, asm: NekoGraph.GAL}
       data:
         Id: binary_007
         Speaker: "\u5F15\u5BFC\u8005"
         Content: "\u6709\u8DA3\u3002\u4F60\u670D\u4ECE\u4E86\u6307\u4EE4\u3002"
     - rid: 8300286042720960619
-      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      type: {class: DialogEntry, ns: GAL, asm: NekoGraph.GAL}
       data:
         Id: binary_008
         Speaker: "\u4E3B\u89D2"
         Content: "\u4E0D\u662F\u4F60\u8BA9\u6211\u70B9\u7684\u5417\uFF1F"
     - rid: 8300286042720960620
-      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      type: {class: DialogEntry, ns: GAL, asm: NekoGraph.GAL}
       data:
         Id: binary_009
         Speaker: "\u5F15\u5BFC\u8005"
         Content: "\u6211\u8BA9\u4F60\u70B9\u5DE6\u8FB9\uFF0C\u4F46\u4F60\u4E5F\u53EF\u4EE5\u70B9\u53F3\u8FB9\u3002\u81EA\u7531\u5C31\u5728\u4E8E\u4E0D\u670D\u4ECE\u3002"
     - rid: 8300286042720960621
-      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      type: {class: DialogEntry, ns: GAL, asm: NekoGraph.GAL}
       data:
         Id: binary_010
         Speaker: "\u7CFB\u7EDF"
         Content: "\u3010\u9009\u62E9\u5206\u652FB\uFF1A\u4F60\u70B9\u51FB\u4E86\u53F3\u8FB9\u3011"
     - rid: 8300286042720960622
-      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      type: {class: DialogEntry, ns: GAL, asm: NekoGraph.GAL}
       data:
         Id: binary_011
         Speaker: "\u5F15\u5BFC\u8005"
         Content: "\u4F60\u53CD\u6297\u4E86\u3002\u4F46\u8FD9\u79CD\u53CD\u6297\uFF0C\u4E5F\u662F\u5728\u6211\u9884\u8BBE\u7684\u6846\u67B6\u5185\u3002"
     - rid: 8300286042720960623
-      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      type: {class: DialogEntry, ns: GAL, asm: NekoGraph.GAL}
       data:
         Id: binary_012
         Speaker: "\u4E3B\u89D2"
         Content: "\u90A3\u6211\u8BE5\u600E\u4E48\u529E\uFF1F"
     - rid: 8300286042720960624
-      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      type: {class: DialogEntry, ns: GAL, asm: NekoGraph.GAL}
       data:
         Id: binary_013
         Speaker: "\u5F15\u5BFC\u8005"
         Content: "\u5173\u95ED\u6E38\u620F\u3002\u771F\u6B63\u7684\u9009\u62E9\u5728\u5916\u9762\u3002"
     - rid: 8300286042720960625
-      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      type: {class: DialogEntry, ns: GAL, asm: NekoGraph.GAL}
       data:
         Id: binary_014
         Speaker: "\u4E3B\u89D2"
         Content: "...\u6211\u62D2\u7EDD\u3002"
     - rid: 8300286042720960626
-      type: {class: DialogEntry, ns: , asm: Assembly-CSharp}
+      type: {class: DialogEntry, ns: GAL, asm: NekoGraph.GAL}
       data:
         Id: binary_015
         Speaker: "\u5F15\u5BFC\u8005"
         Content: "\u5F88\u597D\u3002\u90A3\u4F60\u5DF2\u7ECF\u901A\u8FC7\u4E86\u7B2C\u4E00\u4E2A\u6D4B\u8BD5\u2014\u2014\u77E5\u9053\u81EA\u5DF1\u60F3\u8981\u4EC0\u4E48\uFF0C\u54EA\u6015\u90A3\u662F\u88AB\u5141\u8BB8\u7684\u3002"
     - rid: 8300286042720960627
-      type: {class: AvatarEffectEntry, ns: , asm: Assembly-CSharp}
+      type: {class: AvatarEffectEntry, ns: GAL, asm: NekoGraph.GAL}
       data:
         SlotIndex: 2
         Action: 0
@@ -135,6 +135,7 @@ MonoBehaviour:
         EmotionKey: normal
         FromLeft: 1
     - rid: 8300286042720960628
-      type: {class: BackgroundEffectEntry, ns: , asm: Assembly-CSharp}
+      type: {class: BackgroundEffectEntry, ns: GAL, asm: NekoGraph.GAL}
       data:
         Preset: {fileID: 11400000, guid: 83483cbdc195d804abd6b308754b7dd8, type: 2}
+

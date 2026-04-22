@@ -1,8 +1,9 @@
 using NekoGraph;
 using UnityEngine;
 using System;
-using GAL;
 
+namespace GAL
+{
 /// <summary>
 /// 选项播放器 - 中间层仲裁
 ///
@@ -83,4 +84,5 @@ public class ChoicePlayer : SingletonMono<ChoicePlayer>
         Debug.Log($"[ChoicePlayer] 用户选择了选项 [{selectedIndex}]，执行路由");
         package.RouteSignal.Invoke(selectedIndex);
     }
+}
 }

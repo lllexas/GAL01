@@ -343,7 +343,7 @@ GameObject:
   - component: {fileID: 130216682}
   - component: {fileID: 130216681}
   - component: {fileID: 130216680}
-  - component: {fileID: 130216679}
+  - component: {fileID: 130216683}
   m_Layer: 0
   m_Name: Slot0
   m_TagString: Untagged
@@ -370,37 +370,6 @@ RectTransform:
   m_AnchoredPosition: {x: -600, y: 0}
   m_SizeDelta: {x: 1000, y: 1000}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &130216679
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 130216677}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dcd3ddc2bc9361d4eab73194d8a72936, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _uiID: CharSlot0
-  _fadeDuration: 0.3
-  _scaleDuration: 0.2
-  _targetScale: {x: 1, y: 1, z: 1}
-  _slideInOffset: 30
-  _targetRotationY: 0
-  _rotationDuration: 0.5
-  _rotationEase: 9
-  _rotationTolerance: 0.1
-  _breathScaleAmplitude: 0.05
-  _breathDuration: 1.5
-  _fadeInEase: 9
-  _fadeOutEase: 8
-  _canvasGroup: {fileID: 0}
-  _closeButton: {fileID: 0}
-  characterImage: {fileID: 130216681}
-  offscreenLeft: {x: -1200, y: 0, z: 0}
-  offscreenRight: {x: 1200, y: 0, z: 0}
-  slotIndex: 0
 --- !u!225 &130216680
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -451,6 +420,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 130216677}
   m_CullTransparentMesh: 1
+--- !u!114 &130216683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 130216677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcd3ddc2bc9361d4eab73194d8a72936, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _uiID: CharSlot0
+  _fadeDuration: 0.3
+  _scaleDuration: 0.2
+  _targetScale: {x: 1, y: 1, z: 1}
+  _slideInOffset: 30
+  _targetRotationY: 0
+  _rotationDuration: 0.5
+  _rotationEase: 9
+  _rotationTolerance: 0.1
+  _breathScaleAmplitude: 0.05
+  _breathDuration: 1.5
+  _fadeInEase: 9
+  _fadeOutEase: 8
+  _canvasGroup: {fileID: 0}
+  _closeButton: {fileID: 0}
+  characterImage: {fileID: 130216681}
+  offscreenLeft: {x: -1200, y: 0, z: 0}
+  offscreenRight: {x: 1200, y: 0, z: 0}
+  slotIndex: 0
 --- !u!1 &319938721
 GameObject:
   m_ObjectHideFlags: 0
@@ -1145,7 +1145,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.392}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1182,7 +1182,7 @@ GameObject:
   - component: {fileID: 486015746}
   - component: {fileID: 486015745}
   - component: {fileID: 486015744}
-  - component: {fileID: 486015743}
+  - component: {fileID: 486015747}
   m_Layer: 0
   m_Name: ChoiceBar (4)
   m_TagString: Untagged
@@ -1210,35 +1210,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 193.88312}
   m_SizeDelta: {x: 938.0335, y: 70.2338}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &486015743
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 486015741}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 808b2101cf37740479ba705a3dc92fe3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _uiID: ChoiceBar4
-  _fadeDuration: 0.3
-  _scaleDuration: 0.2
-  _targetScale: {x: 1, y: 1, z: 1}
-  _slideInOffset: 30
-  _targetRotationY: 0
-  _rotationDuration: 0.5
-  _rotationEase: 9
-  _rotationTolerance: 0.1
-  _breathScaleAmplitude: 0.05
-  _breathDuration: 1.5
-  _fadeInEase: 9
-  _fadeOutEase: 8
-  _canvasGroup: {fileID: 0}
-  _closeButton: {fileID: 0}
-  optionIndex: 4
-  label: {fileID: 319938723}
 --- !u!114 &486015744
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1289,6 +1260,35 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &486015747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486015741}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 808b2101cf37740479ba705a3dc92fe3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _uiID: ChoiceBar4
+  _fadeDuration: 0.3
+  _scaleDuration: 0.2
+  _targetScale: {x: 1, y: 1, z: 1}
+  _slideInOffset: 30
+  _targetRotationY: 0
+  _rotationDuration: 0.5
+  _rotationEase: 9
+  _rotationTolerance: 0.1
+  _breathScaleAmplitude: 0.05
+  _breathDuration: 1.5
+  _fadeInEase: 9
+  _fadeOutEase: 8
+  _canvasGroup: {fileID: 0}
+  _closeButton: {fileID: 0}
+  optionIndex: 4
+  label: {fileID: 319938723}
 --- !u!1 &506333660
 GameObject:
   m_ObjectHideFlags: 0
@@ -1584,68 +1584,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &653770348
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 653770349}
-  - component: {fileID: 653770350}
-  m_Layer: 0
-  m_Name: ChoiceContainer
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &653770349
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 653770348}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 883132231}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 400, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &653770350
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 653770348}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 0
-  m_Spacing: 0
-  m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 0
-  m_ChildControlHeight: 0
-  m_ChildScaleWidth: 0
-  m_ChildScaleHeight: 0
-  m_ReverseArrangement: 0
 --- !u!1 &681718540
 GameObject:
   m_ObjectHideFlags: 0
@@ -1658,7 +1596,7 @@ GameObject:
   - component: {fileID: 681718545}
   - component: {fileID: 681718544}
   - component: {fileID: 681718543}
-  - component: {fileID: 681718542}
+  - component: {fileID: 681718546}
   m_Layer: 0
   m_Name: ChoiceBar (3)
   m_TagString: Untagged
@@ -1686,35 +1624,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 193.88312}
   m_SizeDelta: {x: 938.0335, y: 70.2338}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &681718542
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 681718540}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 808b2101cf37740479ba705a3dc92fe3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _uiID: ChoiceBar3
-  _fadeDuration: 0.3
-  _scaleDuration: 0.2
-  _targetScale: {x: 1, y: 1, z: 1}
-  _slideInOffset: 30
-  _targetRotationY: 0
-  _rotationDuration: 0.5
-  _rotationEase: 9
-  _rotationTolerance: 0.1
-  _breathScaleAmplitude: 0.05
-  _breathDuration: 1.5
-  _fadeInEase: 9
-  _fadeOutEase: 8
-  _canvasGroup: {fileID: 0}
-  _closeButton: {fileID: 0}
-  optionIndex: 3
-  label: {fileID: 1340393583}
 --- !u!114 &681718543
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1765,6 +1674,35 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &681718546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 681718540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 808b2101cf37740479ba705a3dc92fe3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _uiID: ChoiceBar3
+  _fadeDuration: 0.3
+  _scaleDuration: 0.2
+  _targetScale: {x: 1, y: 1, z: 1}
+  _slideInOffset: 30
+  _targetRotationY: 0
+  _rotationDuration: 0.5
+  _rotationEase: 9
+  _rotationTolerance: 0.1
+  _breathScaleAmplitude: 0.05
+  _breathDuration: 1.5
+  _fadeInEase: 9
+  _fadeOutEase: 8
+  _canvasGroup: {fileID: 0}
+  _closeButton: {fileID: 0}
+  optionIndex: 3
+  label: {fileID: 1340393583}
 --- !u!1 &711065731
 GameObject:
   m_ObjectHideFlags: 0
@@ -1979,7 +1917,7 @@ GameObject:
   - component: {fileID: 792484709}
   - component: {fileID: 792484708}
   - component: {fileID: 792484707}
-  - component: {fileID: 792484706}
+  - component: {fileID: 792484710}
   m_Layer: 0
   m_Name: Slot4
   m_TagString: Untagged
@@ -2006,37 +1944,6 @@ RectTransform:
   m_AnchoredPosition: {x: 600, y: 0}
   m_SizeDelta: {x: 1000, y: 1000}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &792484706
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 792484704}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dcd3ddc2bc9361d4eab73194d8a72936, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _uiID: CharSlot4
-  _fadeDuration: 0.3
-  _scaleDuration: 0.2
-  _targetScale: {x: 1, y: 1, z: 1}
-  _slideInOffset: 30
-  _targetRotationY: 0
-  _rotationDuration: 0.5
-  _rotationEase: 9
-  _rotationTolerance: 0.1
-  _breathScaleAmplitude: 0.05
-  _breathDuration: 1.5
-  _fadeInEase: 9
-  _fadeOutEase: 8
-  _canvasGroup: {fileID: 0}
-  _closeButton: {fileID: 0}
-  characterImage: {fileID: 792484708}
-  offscreenLeft: {x: -1200, y: 0, z: 0}
-  offscreenRight: {x: 1200, y: 0, z: 0}
-  slotIndex: 4
 --- !u!225 &792484707
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -2087,6 +1994,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 792484704}
   m_CullTransparentMesh: 1
+--- !u!114 &792484710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 792484704}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcd3ddc2bc9361d4eab73194d8a72936, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _uiID: CharSlot4
+  _fadeDuration: 0.3
+  _scaleDuration: 0.2
+  _targetScale: {x: 1, y: 1, z: 1}
+  _slideInOffset: 30
+  _targetRotationY: 0
+  _rotationDuration: 0.5
+  _rotationEase: 9
+  _rotationTolerance: 0.1
+  _breathScaleAmplitude: 0.05
+  _breathDuration: 1.5
+  _fadeInEase: 9
+  _fadeOutEase: 8
+  _canvasGroup: {fileID: 0}
+  _closeButton: {fileID: 0}
+  characterImage: {fileID: 792484708}
+  offscreenLeft: {x: -1200, y: 0, z: 0}
+  offscreenRight: {x: 1200, y: 0, z: 0}
+  slotIndex: 4
 --- !u!1 &875223633
 GameObject:
   m_ObjectHideFlags: 0
@@ -2233,7 +2171,7 @@ GameObject:
   - component: {fileID: 883132235}
   - component: {fileID: 883132234}
   - component: {fileID: 883132233}
-  - component: {fileID: 883132232}
+  - component: {fileID: 883132237}
   m_Layer: 0
   m_Name: DialoguePanel
   m_TagString: Untagged
@@ -2255,7 +2193,6 @@ RectTransform:
   m_Children:
   - {fileID: 748564718}
   - {fileID: 332426293}
-  - {fileID: 653770349}
   m_Father: {fileID: 2018207760}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -2263,38 +2200,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -399.75}
   m_SizeDelta: {x: 1520.3069, y: 280.4973}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &883132232
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 883132230}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24d2fa5f985f7f94fa5ae9314fb27968, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _uiID: DialoguePanel
-  _fadeDuration: 0.3
-  _scaleDuration: 0.2
-  _targetScale: {x: 1, y: 1, z: 1}
-  _slideInOffset: 30
-  _targetRotationY: 0
-  _rotationDuration: 0.5
-  _rotationEase: 9
-  _rotationTolerance: 0.1
-  _breathScaleAmplitude: 0.05
-  _breathDuration: 1.5
-  _fadeInEase: 9
-  _fadeOutEase: 8
-  _canvasGroup: {fileID: 0}
-  _closeButton: {fileID: 0}
-  nameText: {fileID: 748564719}
-  dialogueText: {fileID: 332426294}
-  defaultCharsPerSecond: 8
-  auto: 1
-  autoPauseTime: 2
 --- !u!114 &883132233
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2345,6 +2250,38 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &883132237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 883132230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24d2fa5f985f7f94fa5ae9314fb27968, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _uiID: DialoguePanel
+  _fadeDuration: 0.3
+  _scaleDuration: 0.2
+  _targetScale: {x: 1, y: 1, z: 1}
+  _slideInOffset: 30
+  _targetRotationY: 0
+  _rotationDuration: 0.5
+  _rotationEase: 9
+  _rotationTolerance: 0.1
+  _breathScaleAmplitude: 0.05
+  _breathDuration: 1.5
+  _fadeInEase: 9
+  _fadeOutEase: 8
+  _canvasGroup: {fileID: 0}
+  _closeButton: {fileID: 0}
+  nameText: {fileID: 748564719}
+  dialogueText: {fileID: 332426294}
+  defaultCharsPerSecond: 15
+  auto: 0
+  autoPauseTime: 1.5
 --- !u!1 &945072760
 GameObject:
   m_ObjectHideFlags: 0
@@ -2357,7 +2294,7 @@ GameObject:
   - component: {fileID: 945072765}
   - component: {fileID: 945072764}
   - component: {fileID: 945072763}
-  - component: {fileID: 945072762}
+  - component: {fileID: 945072766}
   m_Layer: 0
   m_Name: ChoiceBar (1)
   m_TagString: Untagged
@@ -2385,35 +2322,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 193.88312}
   m_SizeDelta: {x: 938.0335, y: 70.2338}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &945072762
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 945072760}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 808b2101cf37740479ba705a3dc92fe3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _uiID: ChoiceBar1
-  _fadeDuration: 0.3
-  _scaleDuration: 0.2
-  _targetScale: {x: 1, y: 1, z: 1}
-  _slideInOffset: 30
-  _targetRotationY: 0
-  _rotationDuration: 0.5
-  _rotationEase: 9
-  _rotationTolerance: 0.1
-  _breathScaleAmplitude: 0.05
-  _breathDuration: 1.5
-  _fadeInEase: 9
-  _fadeOutEase: 8
-  _canvasGroup: {fileID: 0}
-  _closeButton: {fileID: 0}
-  optionIndex: 1
-  label: {fileID: 30921503}
 --- !u!114 &945072763
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2464,6 +2372,35 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &945072766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 945072760}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 808b2101cf37740479ba705a3dc92fe3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _uiID: ChoiceBar1
+  _fadeDuration: 0.3
+  _scaleDuration: 0.2
+  _targetScale: {x: 1, y: 1, z: 1}
+  _slideInOffset: 30
+  _targetRotationY: 0
+  _rotationDuration: 0.5
+  _rotationEase: 9
+  _rotationTolerance: 0.1
+  _breathScaleAmplitude: 0.05
+  _breathDuration: 1.5
+  _fadeInEase: 9
+  _fadeOutEase: 8
+  _canvasGroup: {fileID: 0}
+  _closeButton: {fileID: 0}
+  optionIndex: 1
+  label: {fileID: 30921503}
 --- !u!1 &1067266943
 GameObject:
   m_ObjectHideFlags: 0
@@ -2476,7 +2413,7 @@ GameObject:
   - component: {fileID: 1067266948}
   - component: {fileID: 1067266947}
   - component: {fileID: 1067266946}
-  - component: {fileID: 1067266945}
+  - component: {fileID: 1067266949}
   m_Layer: 0
   m_Name: Slot3
   m_TagString: Untagged
@@ -2503,37 +2440,6 @@ RectTransform:
   m_AnchoredPosition: {x: 350, y: 0}
   m_SizeDelta: {x: 1000, y: 1000}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1067266945
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1067266943}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dcd3ddc2bc9361d4eab73194d8a72936, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _uiID: CharSlot3
-  _fadeDuration: 0.3
-  _scaleDuration: 0.2
-  _targetScale: {x: 1, y: 1, z: 1}
-  _slideInOffset: 30
-  _targetRotationY: 0
-  _rotationDuration: 0.5
-  _rotationEase: 9
-  _rotationTolerance: 0.1
-  _breathScaleAmplitude: 0.05
-  _breathDuration: 1.5
-  _fadeInEase: 9
-  _fadeOutEase: 8
-  _canvasGroup: {fileID: 0}
-  _closeButton: {fileID: 0}
-  characterImage: {fileID: 1067266947}
-  offscreenLeft: {x: -1200, y: 0, z: 0}
-  offscreenRight: {x: 1200, y: 0, z: 0}
-  slotIndex: 3
 --- !u!225 &1067266946
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -2584,6 +2490,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1067266943}
   m_CullTransparentMesh: 1
+--- !u!114 &1067266949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1067266943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcd3ddc2bc9361d4eab73194d8a72936, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _uiID: CharSlot3
+  _fadeDuration: 0.3
+  _scaleDuration: 0.2
+  _targetScale: {x: 1, y: 1, z: 1}
+  _slideInOffset: 30
+  _targetRotationY: 0
+  _rotationDuration: 0.5
+  _rotationEase: 9
+  _rotationTolerance: 0.1
+  _breathScaleAmplitude: 0.05
+  _breathDuration: 1.5
+  _fadeInEase: 9
+  _fadeOutEase: 8
+  _canvasGroup: {fileID: 0}
+  _closeButton: {fileID: 0}
+  characterImage: {fileID: 1067266947}
+  offscreenLeft: {x: -1200, y: 0, z: 0}
+  offscreenRight: {x: 1200, y: 0, z: 0}
+  slotIndex: 3
 --- !u!1 &1129312651
 GameObject:
   m_ObjectHideFlags: 0
@@ -2703,7 +2640,7 @@ GameObject:
   - component: {fileID: 1248352152}
   - component: {fileID: 1248352151}
   - component: {fileID: 1248352150}
-  - component: {fileID: 1248352149}
+  - component: {fileID: 1248352153}
   m_Layer: 0
   m_Name: Slot1
   m_TagString: Untagged
@@ -2730,37 +2667,6 @@ RectTransform:
   m_AnchoredPosition: {x: -350, y: 0}
   m_SizeDelta: {x: 1000, y: 1000}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1248352149
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1248352147}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dcd3ddc2bc9361d4eab73194d8a72936, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _uiID: CharSlot1
-  _fadeDuration: 0.3
-  _scaleDuration: 0.2
-  _targetScale: {x: 1, y: 1, z: 1}
-  _slideInOffset: 30
-  _targetRotationY: 0
-  _rotationDuration: 0.5
-  _rotationEase: 9
-  _rotationTolerance: 0.1
-  _breathScaleAmplitude: 0.05
-  _breathDuration: 1.5
-  _fadeInEase: 9
-  _fadeOutEase: 8
-  _canvasGroup: {fileID: 0}
-  _closeButton: {fileID: 0}
-  characterImage: {fileID: 1248352151}
-  offscreenLeft: {x: -1200, y: 0, z: 0}
-  offscreenRight: {x: 1200, y: 0, z: 0}
-  slotIndex: 1
 --- !u!225 &1248352150
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -2811,6 +2717,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1248352147}
   m_CullTransparentMesh: 1
+--- !u!114 &1248352153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1248352147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcd3ddc2bc9361d4eab73194d8a72936, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _uiID: CharSlot1
+  _fadeDuration: 0.3
+  _scaleDuration: 0.2
+  _targetScale: {x: 1, y: 1, z: 1}
+  _slideInOffset: 30
+  _targetRotationY: 0
+  _rotationDuration: 0.5
+  _rotationEase: 9
+  _rotationTolerance: 0.1
+  _breathScaleAmplitude: 0.05
+  _breathDuration: 1.5
+  _fadeInEase: 9
+  _fadeOutEase: 8
+  _canvasGroup: {fileID: 0}
+  _closeButton: {fileID: 0}
+  characterImage: {fileID: 1248352151}
+  offscreenLeft: {x: -1200, y: 0, z: 0}
+  offscreenRight: {x: 1200, y: 0, z: 0}
+  slotIndex: 1
 --- !u!1 &1340393581
 GameObject:
   m_ObjectHideFlags: 0
@@ -3031,7 +2968,6 @@ GameObject:
   - component: {fileID: 1368534954}
   - component: {fileID: 1368534958}
   - component: {fileID: 1368534957}
-  - component: {fileID: 1368534955}
   m_Layer: 0
   m_Name: CharacterStage
   m_TagString: Untagged
@@ -3063,18 +2999,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1368534955
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1368534953}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44227bde2147303488968ddc811f575b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!222 &1368534957
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3107,6 +3031,7 @@ GameObject:
   - component: {fileID: 1450313631}
   - component: {fileID: 1450313630}
   - component: {fileID: 1450313629}
+  - component: {fileID: 1450313632}
   m_Layer: 6
   m_Name: Flash
   m_TagString: Untagged
@@ -3183,6 +3108,36 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1450313627}
   m_CullTransparentMesh: 1
+--- !u!114 &1450313632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1450313627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a02722c6130e354793c9b93fbb22c37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _uiID: TransitionManager
+  _fadeDuration: 0.3
+  _scaleDuration: 0.2
+  _targetScale: {x: 1, y: 1, z: 1}
+  _slideInOffset: 30
+  _targetRotationY: 0
+  _rotationDuration: 0.5
+  _rotationEase: 9
+  _rotationTolerance: 0.1
+  _breathScaleAmplitude: 0.05
+  _breathDuration: 1.5
+  _fadeInEase: 9
+  _fadeOutEase: 8
+  _canvasGroup: {fileID: 0}
+  _closeButton: {fileID: 0}
+  blackScreen: {fileID: 1450313630}
+  whiteScreen: {fileID: 1450313630}
+  defaultDuration: 0.5
 --- !u!1 &1464125941
 GameObject:
   m_ObjectHideFlags: 0
@@ -3404,7 +3359,7 @@ GameObject:
   - component: {fileID: 1658414398}
   - component: {fileID: 1658414397}
   - component: {fileID: 1658414396}
-  - component: {fileID: 1658414395}
+  - component: {fileID: 1658414399}
   m_Layer: 0
   m_Name: Slot2
   m_TagString: Untagged
@@ -3431,37 +3386,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1000, y: 1000}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1658414395
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1658414393}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dcd3ddc2bc9361d4eab73194d8a72936, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _uiID: CharSlot2
-  _fadeDuration: 0.3
-  _scaleDuration: 0.2
-  _targetScale: {x: 1, y: 1, z: 1}
-  _slideInOffset: 30
-  _targetRotationY: 0
-  _rotationDuration: 0.5
-  _rotationEase: 9
-  _rotationTolerance: 0.1
-  _breathScaleAmplitude: 0.05
-  _breathDuration: 1.5
-  _fadeInEase: 9
-  _fadeOutEase: 8
-  _canvasGroup: {fileID: 0}
-  _closeButton: {fileID: 0}
-  characterImage: {fileID: 1658414397}
-  offscreenLeft: {x: -1200, y: 0, z: 0}
-  offscreenRight: {x: 1200, y: 0, z: 0}
-  slotIndex: 2
 --- !u!225 &1658414396
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -3512,6 +3436,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1658414393}
   m_CullTransparentMesh: 1
+--- !u!114 &1658414399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1658414393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcd3ddc2bc9361d4eab73194d8a72936, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _uiID: CharSlot2
+  _fadeDuration: 0.3
+  _scaleDuration: 0.2
+  _targetScale: {x: 1, y: 1, z: 1}
+  _slideInOffset: 30
+  _targetRotationY: 0
+  _rotationDuration: 0.5
+  _rotationEase: 9
+  _rotationTolerance: 0.1
+  _breathScaleAmplitude: 0.05
+  _breathDuration: 1.5
+  _fadeInEase: 9
+  _fadeOutEase: 8
+  _canvasGroup: {fileID: 0}
+  _closeButton: {fileID: 0}
+  characterImage: {fileID: 1658414397}
+  offscreenLeft: {x: -1200, y: 0, z: 0}
+  offscreenRight: {x: 1200, y: 0, z: 0}
+  slotIndex: 2
 --- !u!1 &1683035325
 GameObject:
   m_ObjectHideFlags: 0
@@ -3705,7 +3660,7 @@ GameObject:
   - component: {fileID: 1754913224}
   - component: {fileID: 1754913223}
   - component: {fileID: 1754913222}
-  - component: {fileID: 1754913221}
+  - component: {fileID: 1754913225}
   m_Layer: 0
   m_Name: ChoiceBar (2)
   m_TagString: Untagged
@@ -3733,35 +3688,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 193.88312}
   m_SizeDelta: {x: 938.0335, y: 70.2338}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1754913221
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1754913219}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 808b2101cf37740479ba705a3dc92fe3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _uiID: ChoiceBar2
-  _fadeDuration: 0.3
-  _scaleDuration: 0.2
-  _targetScale: {x: 1, y: 1, z: 1}
-  _slideInOffset: 30
-  _targetRotationY: 0
-  _rotationDuration: 0.5
-  _rotationEase: 9
-  _rotationTolerance: 0.1
-  _breathScaleAmplitude: 0.05
-  _breathDuration: 1.5
-  _fadeInEase: 9
-  _fadeOutEase: 8
-  _canvasGroup: {fileID: 0}
-  _closeButton: {fileID: 0}
-  optionIndex: 2
-  label: {fileID: 875223635}
 --- !u!114 &1754913222
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3812,6 +3738,35 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1754913225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754913219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 808b2101cf37740479ba705a3dc92fe3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _uiID: ChoiceBar2
+  _fadeDuration: 0.3
+  _scaleDuration: 0.2
+  _targetScale: {x: 1, y: 1, z: 1}
+  _slideInOffset: 30
+  _targetRotationY: 0
+  _rotationDuration: 0.5
+  _rotationEase: 9
+  _rotationTolerance: 0.1
+  _breathScaleAmplitude: 0.05
+  _breathDuration: 1.5
+  _fadeInEase: 9
+  _fadeOutEase: 8
+  _canvasGroup: {fileID: 0}
+  _closeButton: {fileID: 0}
+  optionIndex: 2
+  label: {fileID: 875223635}
 --- !u!1 &1781603324
 GameObject:
   m_ObjectHideFlags: 0
@@ -4015,7 +3970,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2018207760}
-  - component: {fileID: 2018207761}
+  - component: {fileID: 2018207764}
+  - component: {fileID: 2018207763}
+  - component: {fileID: 2018207765}
   m_Layer: 0
   m_Name: GALFrontend
   m_TagString: Untagged
@@ -4046,7 +4003,27 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &2018207761
+--- !u!222 &2018207763
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2018207759}
+  m_CullTransparentMesh: 1
+--- !u!225 &2018207764
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2018207759}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &2018207765
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4145,7 +4122,7 @@ GameObject:
   - component: {fileID: 2084543023}
   - component: {fileID: 2084543022}
   - component: {fileID: 2084543021}
-  - component: {fileID: 2084543020}
+  - component: {fileID: 2084543024}
   m_Layer: 0
   m_Name: ChoiceBar
   m_TagString: Untagged
@@ -4173,35 +4150,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 193.88312}
   m_SizeDelta: {x: 938.0335, y: 70.2338}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &2084543020
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2084543018}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 808b2101cf37740479ba705a3dc92fe3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _uiID: ChoiceBar0
-  _fadeDuration: 0.3
-  _scaleDuration: 0.2
-  _targetScale: {x: 1, y: 1, z: 1}
-  _slideInOffset: 30
-  _targetRotationY: 0
-  _rotationDuration: 0.5
-  _rotationEase: 9
-  _rotationTolerance: 0.1
-  _breathScaleAmplitude: 0.05
-  _breathDuration: 1.5
-  _fadeInEase: 9
-  _fadeOutEase: 8
-  _canvasGroup: {fileID: 0}
-  _closeButton: {fileID: 0}
-  optionIndex: 0
-  label: {fileID: 1523451763}
 --- !u!114 &2084543021
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4252,6 +4200,35 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &2084543024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2084543018}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 808b2101cf37740479ba705a3dc92fe3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _uiID: ChoiceBar0
+  _fadeDuration: 0.3
+  _scaleDuration: 0.2
+  _targetScale: {x: 1, y: 1, z: 1}
+  _slideInOffset: 30
+  _targetRotationY: 0
+  _rotationDuration: 0.5
+  _rotationEase: 9
+  _rotationTolerance: 0.1
+  _breathScaleAmplitude: 0.05
+  _breathDuration: 1.5
+  _fadeInEase: 9
+  _fadeOutEase: 8
+  _canvasGroup: {fileID: 0}
+  _closeButton: {fileID: 0}
+  optionIndex: 0
+  label: {fileID: 1523451763}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-
+namespace GAL
+{
     /// <summary>
     /// 镜头效果库 - 通过 EffectKey 查找默认镜头效果配置
     /// </summary>
@@ -152,3 +153,4 @@ using UnityEngine;
 #endif
         }
     }
+}

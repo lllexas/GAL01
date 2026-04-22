@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+namespace GAL
+{
     /// <summary>
     /// DialogSequenceSO - 对话序列资源
     ///
@@ -66,4 +68,5 @@ using UnityEngine;
             return null;
         }
     }
+}
 

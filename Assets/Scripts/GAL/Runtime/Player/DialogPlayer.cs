@@ -2,8 +2,9 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using GAL;
 
+namespace GAL
+{
     /// <summary>
     /// 对话播放器 - 后端推送包 → 前端自治渲染 → 回调通知完成
     /// 
@@ -262,3 +263,4 @@ using GAL;
             onStepComplete?.Invoke();
         }
     }
+}
