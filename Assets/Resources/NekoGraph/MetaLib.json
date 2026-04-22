@@ -5,14 +5,118 @@
     "Kind": 1,
     "Storage": 0,
     "ResourcePath": "MainStory",
-    "ObjectType": null,
+    "ObjectType": "BasePackData",
     "GraphType": "Base",
     "DisplayName": "MainStory",
     "Author": "NekoTeam",
     "Version": "1.0.0",
     "Description": null,
-    "CustomFields": {},
+    "CustomFields": {
+      "AssetPath": "Assets/GAL/Resources/MainStory.nekograph"
+    },
     "EffectiveID": "MainStory"
+  },
+  "TestBG-classrom": {
+    "ID": "TestBG-classrom",
+    "PackID": "TestBG-classrom",
+    "Kind": 2,
+    "Storage": 0,
+    "ResourcePath": "BackGround/TestBG-classrom",
+    "ObjectType": "GAL.BackgroundPresetSO",
+    "GraphType": null,
+    "DisplayName": "TestBG-classrom",
+    "Author": "NekoTeam",
+    "Version": "1.0.0",
+    "Description": "",
+    "CustomFields": {
+      "AssetPath": "Assets/GAL/Resources/BackGround/TestBG-classrom.asset"
+    },
+    "EffectiveID": "TestBG-classrom"
+  },
+  "TestBG-playground": {
+    "ID": "TestBG-playground",
+    "PackID": "TestBG-playground",
+    "Kind": 2,
+    "Storage": 0,
+    "ResourcePath": "BackGround/TestBG-playground",
+    "ObjectType": "GAL.BackgroundPresetSO",
+    "GraphType": null,
+    "DisplayName": "TestBG-playground",
+    "Author": "NekoTeam",
+    "Version": "1.0.0",
+    "Description": "",
+    "CustomFields": {
+      "AssetPath": "Assets/GAL/Resources/BackGround/TestBG-playground.asset"
+    },
+    "EffectiveID": "TestBG-playground"
+  },
+  "CameraEffectLibrary": {
+    "ID": "CameraEffectLibrary",
+    "PackID": "CameraEffectLibrary",
+    "Kind": 2,
+    "Storage": 0,
+    "ResourcePath": "CameraEffectLibrary",
+    "ObjectType": "GAL.CameraEffectLibrarySO",
+    "GraphType": null,
+    "DisplayName": "CameraEffectLibrary",
+    "Author": "NekoTeam",
+    "Version": "1.0.0",
+    "Description": "",
+    "CustomFields": {
+      "AssetPath": "Assets/GAL/Resources/CameraEffectLibrary.asset"
+    },
+    "EffectiveID": "CameraEffectLibrary"
+  },
+  "冰淇凌": {
+    "ID": "冰淇凌",
+    "PackID": "冰淇凌",
+    "Kind": 2,
+    "Storage": 0,
+    "ResourcePath": "Charactor/冰淇凌",
+    "ObjectType": "GAL.CharacterRenderProfileSO",
+    "GraphType": null,
+    "DisplayName": "冰淇凌",
+    "Author": "NekoTeam",
+    "Version": "1.0.0",
+    "Description": "",
+    "CustomFields": {
+      "AssetPath": "Assets/GAL/Resources/Charactor/冰淇凌.asset"
+    },
+    "EffectiveID": "冰淇凌"
+  },
+  "君君": {
+    "ID": "君君",
+    "PackID": "君君",
+    "Kind": 2,
+    "Storage": 0,
+    "ResourcePath": "Charactor/君君",
+    "ObjectType": "GAL.CharacterRenderProfileSO",
+    "GraphType": null,
+    "DisplayName": "君君",
+    "Author": "NekoTeam",
+    "Version": "1.0.0",
+    "Description": "",
+    "CustomFields": {
+      "AssetPath": "Assets/GAL/Resources/Charactor/君君.asset"
+    },
+    "EffectiveID": "君君"
+  },
+  "萨科塔": {
+    "ID": "萨科塔",
+    "PackID": "萨科塔",
+    "Kind": 2,
+    "Storage": 0,
+    "ResourcePath": "Charactor/萨科塔",
+    "ObjectType": "GAL.CharacterRenderProfileSO",
+    "GraphType": null,
+    "DisplayName": "萨科塔",
+    "Author": "NekoTeam",
+    "Version": "1.0.0",
+    "Description": "",
+    "CustomFields": {
+      "AssetPath": "Assets/GAL/Resources/Charactor/萨科塔.asset"
+    },
+    "EffectiveID": "萨科塔"
   },
   "dialog-sequence:036c139a1afea934ab2f2546159c59c9": {
     "ID": "dialog-sequence:036c139a1afea934ab2f2546159c59c9",
@@ -20,70 +124,135 @@
     "Kind": 2,
     "Storage": 0,
     "ResourcePath": "Dialog/Test1DialogSequence",
-    "ObjectType": "DialogSequenceSO",
+    "ObjectType": "GAL.DialogSequenceSO",
     "GraphType": null,
     "DisplayName": "Test1DialogSequence",
     "Author": null,
     "Version": "1.0.0",
     "Description": "",
     "CustomFields": {
-      "AssetPath": "Assets/Resources/Dialog/Test1DialogSequence.asset",
+      "AssetPath": "Assets/GAL/Resources/Dialog/Test1DialogSequence.asset",
       "AssetGuid": "036c139a1afea934ab2f2546159c59c9"
     },
     "EffectiveID": "dialog-sequence:036c139a1afea934ab2f2546159c59c9"
   },
-  "dialog-sequence:92bf0b07a52a85e4f8615a6192a423b9": {
-    "ID": "dialog-sequence:92bf0b07a52a85e4f8615a6192a423b9",
-    "PackID": "dialog-sequence:92bf0b07a52a85e4f8615a6192a423b9",
-    "Kind": 2,
-    "Storage": 0,
-    "ResourcePath": "Dialog/TestDialogSequence 1",
-    "ObjectType": "DialogSequenceSO",
-    "GraphType": null,
-    "DisplayName": "TestDialogSequence 1",
-    "Author": null,
-    "Version": "1.0.0",
-    "Description": "",
-    "CustomFields": {
-      "AssetPath": "Assets/Resources/Dialog/TestDialogSequence 1.asset",
-      "AssetGuid": "92bf0b07a52a85e4f8615a6192a423b9"
-    },
-    "EffectiveID": "dialog-sequence:92bf0b07a52a85e4f8615a6192a423b9"
-  },
-  "dialog-sequence:c252ef04202d25e418de89718a98bd8b": {
-    "ID": "dialog-sequence:c252ef04202d25e418de89718a98bd8b",
-    "PackID": "dialog-sequence:c252ef04202d25e418de89718a98bd8b",
+  "Test2DialogSequence": {
+    "ID": "Test2DialogSequence",
+    "PackID": "Test2DialogSequence",
     "Kind": 2,
     "Storage": 0,
     "ResourcePath": "Dialog/Test2DialogSequence",
-    "ObjectType": "DialogSequenceSO",
+    "ObjectType": "GAL.DialogSequenceSO",
     "GraphType": null,
     "DisplayName": "Test2DialogSequence",
-    "Author": null,
-    "Version": "1.0.0",
-    "Description": null,
-    "CustomFields": {
-      "AssetPath": "Assets/Resources/Dialog/Test2DialogSequence.asset",
-      "AssetGuid": "c252ef04202d25e418de89718a98bd8b"
-    },
-    "EffectiveID": "dialog-sequence:c252ef04202d25e418de89718a98bd8b"
-  },
-  "dialog-sequence:b1d295b71d587464d8cbe74474945518": {
-    "ID": "dialog-sequence:b1d295b71d587464d8cbe74474945518",
-    "PackID": "dialog-sequence:b1d295b71d587464d8cbe74474945518",
-    "Kind": 2,
-    "Storage": 0,
-    "ResourcePath": "Dialog/Test1DialogSequence 1",
-    "ObjectType": "DialogSequenceSO",
-    "GraphType": null,
-    "DisplayName": "Test1DialogSequence 1",
-    "Author": null,
+    "Author": "NekoTeam",
     "Version": "1.0.0",
     "Description": "",
     "CustomFields": {
-      "AssetPath": "Assets/Resources/Dialog/Test1DialogSequence 1.asset",
-      "AssetGuid": "b1d295b71d587464d8cbe74474945518"
+      "AssetPath": "Assets/GAL/Resources/Dialog/Test2DialogSequence.asset"
     },
-    "EffectiveID": "dialog-sequence:b1d295b71d587464d8cbe74474945518"
+    "EffectiveID": "Test2DialogSequence"
+  },
+  "DOTweenSettings": {
+    "ID": "DOTweenSettings",
+    "PackID": "DOTweenSettings",
+    "Kind": 2,
+    "Storage": 0,
+    "ResourcePath": "DOTweenSettings",
+    "ObjectType": "DG.Tweening.Core.DOTweenSettings",
+    "GraphType": null,
+    "DisplayName": "DOTweenSettings",
+    "Author": "NekoTeam",
+    "Version": "1.0.0",
+    "Description": "",
+    "CustomFields": {
+      "AssetPath": "Assets/Resources/DOTweenSettings.asset"
+    },
+    "EffectiveID": "DOTweenSettings"
+  },
+  "LiberationSans SDF - Fallback": {
+    "ID": "LiberationSans SDF - Fallback",
+    "PackID": "LiberationSans SDF - Fallback",
+    "Kind": 2,
+    "Storage": 0,
+    "ResourcePath": "Fonts & Materials/LiberationSans SDF - Fallback",
+    "ObjectType": "TMPro.TMP_FontAsset",
+    "GraphType": null,
+    "DisplayName": "LiberationSans SDF - Fallback",
+    "Author": "NekoTeam",
+    "Version": "1.0.0",
+    "Description": "",
+    "CustomFields": {
+      "AssetPath": "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Fallback.asset"
+    },
+    "EffectiveID": "LiberationSans SDF - Fallback"
+  },
+  "LiberationSans SDF": {
+    "ID": "LiberationSans SDF",
+    "PackID": "LiberationSans SDF",
+    "Kind": 2,
+    "Storage": 0,
+    "ResourcePath": "Fonts & Materials/LiberationSans SDF",
+    "ObjectType": "TMPro.TMP_FontAsset",
+    "GraphType": null,
+    "DisplayName": "LiberationSans SDF",
+    "Author": "NekoTeam",
+    "Version": "1.0.0",
+    "Description": "",
+    "CustomFields": {
+      "AssetPath": "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset"
+    },
+    "EffectiveID": "LiberationSans SDF"
+  },
+  "EmojiOne": {
+    "ID": "EmojiOne",
+    "PackID": "EmojiOne",
+    "Kind": 2,
+    "Storage": 0,
+    "ResourcePath": "Sprite Assets/EmojiOne",
+    "ObjectType": "TMPro.TMP_SpriteAsset",
+    "GraphType": null,
+    "DisplayName": "EmojiOne",
+    "Author": "NekoTeam",
+    "Version": "1.0.0",
+    "Description": "",
+    "CustomFields": {
+      "AssetPath": "Assets/TextMesh Pro/Resources/Sprite Assets/EmojiOne.asset"
+    },
+    "EffectiveID": "EmojiOne"
+  },
+  "Default Style Sheet": {
+    "ID": "Default Style Sheet",
+    "PackID": "Default Style Sheet",
+    "Kind": 2,
+    "Storage": 0,
+    "ResourcePath": "Style Sheets/Default Style Sheet",
+    "ObjectType": "TMPro.TMP_StyleSheet",
+    "GraphType": null,
+    "DisplayName": "Default Style Sheet",
+    "Author": "NekoTeam",
+    "Version": "1.0.0",
+    "Description": "",
+    "CustomFields": {
+      "AssetPath": "Assets/TextMesh Pro/Resources/Style Sheets/Default Style Sheet.asset"
+    },
+    "EffectiveID": "Default Style Sheet"
+  },
+  "TMP Settings": {
+    "ID": "TMP Settings",
+    "PackID": "TMP Settings",
+    "Kind": 2,
+    "Storage": 0,
+    "ResourcePath": "TMP Settings",
+    "ObjectType": "TMPro.TMP_Settings",
+    "GraphType": null,
+    "DisplayName": "TMP Settings",
+    "Author": "NekoTeam",
+    "Version": "1.0.0",
+    "Description": "",
+    "CustomFields": {
+      "AssetPath": "Assets/TextMesh Pro/Resources/TMP Settings.asset"
+    },
+    "EffectiveID": "TMP Settings"
   }
 }
